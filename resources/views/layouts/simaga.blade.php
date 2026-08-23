@@ -10,6 +10,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet"
@@ -52,6 +53,7 @@
 
             <!-- Sidebar Header -->
             <div class="px-6 py-5 bg-emerald-900/80 border-b border-emerald-800/80 flex items-center justify-between">
+
                 <div class="flex items-center gap-3">
 
                     <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-emerald-950 shadow-md ring-2 ring-amber-400/40">
@@ -83,15 +85,18 @@
                         />
                     </svg>
                 </button>
+
             </div>
 
             <!-- User Role Banner -->
             <div class="px-6 py-3 bg-emerald-900/40 border-b border-emerald-800/40">
+
                 <div class="text-xs text-emerald-300 font-medium">
                     Masuk Sebagai:
                 </div>
 
                 <div class="text-sm font-semibold text-amber-400 flex items-center gap-2 mt-0.5">
+
                     <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
 
                     @if(Auth::user()->isAdministrator())
@@ -103,7 +108,9 @@
                     @else
                         {{ Auth::user()->role }}
                     @endif
+
                 </div>
+
             </div>
 
             <!-- Navigation Links -->
@@ -122,62 +129,55 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                         </svg>
 
                         Dashboard
                     </a>
 
+                    <!-- Data Magang -->
                     <div class="pt-3 pb-1 px-3 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
                         Data Magang
                     </div>
 
-                    {{-- Mahasiswa - Aktif --}}
+                    {{-- Mahasiswa --}}
                     <a
                         href="{{ route('admin.mahasiswa.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Mahasiswa
                     </a>
 
-                    {{-- Mentor - Aktif --}}
+                    {{-- Mentor --}}
                     <a
                         href="{{ route('admin.mentors.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mentors.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mentors.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Mentor
                     </a>
 
-                    {{-- Instansi - Segera --}}
-                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
-                        <span class="flex items-center gap-3">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                            Instansi
-                        </span>
-
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                            Segera
-                        </span>
-                    </div>
-
-                    {{-- Periode Magang - Aktif --}}
+                    {{-- Periode Magang --}}
                     <a
                         href="{{ route('admin.periode-magangs.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Periode Magang
                     </a>
 
-                    {{-- Penempatan - Aktif --}}
+                    {{-- Penempatan --}}
                     <a
                         href="{{ route('admin.penempatans.index') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.penempatans.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.penempatans.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Penempatan
                     </a>
 
@@ -192,6 +192,7 @@
 
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+
                                 {{ $item }}
                             </span>
 
@@ -208,22 +209,85 @@
                         Lainnya
                     </div>
 
-                    @foreach(['Penilaian', 'Dokumen', 'Laporan', 'Sertifikat', 'Manajemen Pengguna', 'Pengaturan'] as $item)
+                    {{-- Penilaian --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
-                        <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Penilaian
+                        </span>
 
-                            <span class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                                {{ $item }}
-                            </span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
 
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                                Segera
-                            </span>
+                    </div>
 
-                        </div>
+                    {{-- Dokumen --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
-                    @endforeach
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Dokumen
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Laporan --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Laporan
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Sertifikat --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Sertifikat
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Manajemen Pengguna - Aktif --}}
+                    <a
+                        href="{{ route('admin.users.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.users.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                        Manajemen Pengguna
+                    </a>
+
+                    {{-- Pengaturan - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Pengaturan
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
 
                 @elseif(Auth::user()->isMentor())
 
@@ -255,6 +319,7 @@
 
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+
                                 {{ $item }}
                             </span>
 
@@ -279,7 +344,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1v-4a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0h6"
                             />
                         </svg>
 
@@ -290,22 +355,71 @@
                         Aktivitas Magang
                     </div>
 
-                    @foreach(['Absensi', 'Logbook', 'Tugas', 'Dokumen', 'Progress'] as $item)
+                    {{-- Absensi - Aktif --}}
+                    <a
+                        href="{{ route('mahasiswa.absensi.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.absensi.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.absensi.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                        <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                        Absensi
+                    </a>
 
-                            <span class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                                {{ $item }}
-                            </span>
+                    {{-- Logbook - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                                Segera
-                            </span>
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Logbook
+                        </span>
 
-                        </div>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
 
-                    @endforeach
+                    </div>
+
+                    {{-- Tugas - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Tugas
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Dokumen - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Dokumen
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Progress - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Progress
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
 
                 @endif
 
@@ -323,7 +437,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7 7z"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                         />
                     </svg>
 
@@ -384,6 +498,7 @@
                         </button>
 
                         <div>
+
                             <h2 class="text-base sm:text-lg font-bold text-emerald-950 dark:text-emerald-400 tracking-tight">
                                 {{ $headerTitle ?? 'Dashboard' }}
                             </h2>
@@ -391,6 +506,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
                                 Pengadilan Tinggi Agama Palu
                             </p>
+
                         </div>
 
                     </div>
@@ -405,6 +521,7 @@
                             </div>
 
                             <div class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+
                                 @if(Auth::user()->isAdministrator())
                                     Administrator PTA
                                 @elseif(Auth::user()->isMentor())
@@ -414,6 +531,7 @@
                                 @else
                                     {{ Auth::user()->role }}
                                 @endif
+
                             </div>
 
                         </div>

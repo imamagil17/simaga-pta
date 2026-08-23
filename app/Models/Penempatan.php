@@ -76,4 +76,12 @@ class Penempatan extends Model
     {
         return $this->hasMany(Penempatan::class);
     }
+
+    /**
+     * Penempatan memiliki banyak absensi.
+     */
+    public function absensis(): HasMany
+    {
+        return $this->hasMany(Absensi::class);
+    }
 }

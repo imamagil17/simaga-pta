@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Mahasiswa\AbsensiController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
@@ -100,6 +101,9 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
+
+        Route::put('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+            ->name('users.toggle-status');
 
         /*
         |--------------------------------------------------------------------------
@@ -244,6 +248,20 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
         Route::get('/dashboard', function () {
             return view('mahasiswa.dashboard');
         })->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Absensi
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/absensi', [AbsensiController::class, 'index'])
+            ->name('absensi.index');
+
+        Route::post('/absensi/masuk', [AbsensiController::class, 'storeMasuk'])
+            ->name('absensi.masuk');
+
+        Route::post('/absensi/pulang', [AbsensiController::class, 'storePulang'])
+            ->name('absensi.pulang');
     });
 
 /*

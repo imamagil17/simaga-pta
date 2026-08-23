@@ -136,4 +136,36 @@ class UserController extends Controller
             ->route('admin.users.index')
             ->with('success', 'Pengguna berhasil dibuat.');
     }
+
+    /**
+     * Mengaktifkan atau menonaktifkan akun pengguna.
+     */
+    public function toggleStatus(User $user): RedirectResponse
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Proteksi akun administrator yang sedang login
+        |--------------------------------------------------------------------------
+        */
+        if ($user->id === auth()->id()) {
+            return back()->withErrors([
+                'status' => 'Akun Administrator yang sedang digunakan tidak dapat dinonaktifkan.',
+            ]);
+        }
+
+        $newStatus = $user->status === 'active'
+            ? 'inactive'
+            : 'active';
+
+        $user->update([
+            'status' => $newStatus,
+        ]);
+
+        return back()->with(
+            'success',
+            $newStatus === 'active'
+                ? 'Akun pengguna berhasil diaktifkan.'
+                : 'Akun pengguna berhasil dinonaktifkan.'
+        );
+    }
 }
