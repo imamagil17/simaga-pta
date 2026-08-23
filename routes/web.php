@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
+use App\Http\Controllers\Admin\PenempatanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\ProfileController;
@@ -161,6 +163,55 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
             '/mentor-periodes/{mentorPeriode}',
             [MentorPeriodeController::class, 'update']
         )->name('mentor-periodes.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Mahasiswa
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/mahasiswa', [MahasiswaController::class, 'index'])
+            ->name('mahasiswa.index');
+
+        Route::get('/mahasiswa/{user}/profile/create', [MahasiswaController::class, 'create'])
+            ->name('mahasiswa.profile.create');
+
+        Route::post('/mahasiswa/{user}/profile', [MahasiswaController::class, 'store'])
+            ->name('mahasiswa.profile.store');
+
+        Route::get('/mahasiswa/{user}/profile', [MahasiswaController::class, 'show'])
+            ->name('mahasiswa.profile.show');
+
+        Route::get('/mahasiswa/{user}/profile/edit', [MahasiswaController::class, 'edit'])
+            ->name('mahasiswa.profile.edit');
+
+        Route::put('/mahasiswa/{user}/profile', [MahasiswaController::class, 'update'])
+            ->name('mahasiswa.profile.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Penempatan
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/penempatans', [PenempatanController::class, 'index'])
+            ->name('penempatans.index');
+
+        Route::get('/penempatans/create', [PenempatanController::class, 'create'])
+            ->name('penempatans.create');
+
+        Route::post('/penempatans', [PenempatanController::class, 'store'])
+            ->name('penempatans.store');
+
+        Route::get('/penempatans/{penempatan}', [PenempatanController::class, 'show'])
+            ->name('penempatans.show');
+
+        Route::get('/penempatans/{penempatan}/edit', [PenempatanController::class, 'edit'])
+            ->name('penempatans.edit');
+
+        Route::put('/penempatans/{penempatan}', [PenempatanController::class, 'update'])
+            ->name('penempatans.update');
+
+        Route::put('/penempatans/{penempatan}/toggle-status', [PenempatanController::class, 'toggleStatus'])
+            ->name('penempatans.toggle-status');
     });
 
 /*

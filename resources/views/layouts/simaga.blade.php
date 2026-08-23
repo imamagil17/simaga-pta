@@ -10,7 +10,10 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
     <!-- Scripts and Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -47,7 +50,7 @@
             class="fixed inset-y-0 left-0 z-50 w-72 bg-emerald-950 text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0 border-r border-emerald-800/50 shadow-xl"
         >
 
-            <!-- Sidebar Header / Branding -->
+            <!-- Sidebar Header -->
             <div class="px-6 py-5 bg-emerald-900/80 border-b border-emerald-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-3">
 
@@ -119,7 +122,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                         </svg>
 
@@ -130,17 +133,14 @@
                         Data Magang
                     </div>
 
-                    {{-- Mahasiswa - Segera --}}
-                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
-                        <span class="flex items-center gap-3">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                            Mahasiswa
-                        </span>
-
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                            Segera
-                        </span>
-                    </div>
+                    {{-- Mahasiswa - Aktif --}}
+                    <a
+                        href="{{ route('admin.mahasiswa.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+                        Mahasiswa
+                    </a>
 
                     {{-- Mentor - Aktif --}}
                     <a
@@ -148,7 +148,6 @@
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mentors.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mentors.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
-
                         Mentor
                     </a>
 
@@ -170,21 +169,17 @@
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
                     >
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
-
                         Periode Magang
                     </a>
 
-                    {{-- Penempatan - Segera --}}
-                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
-                        <span class="flex items-center gap-3">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                            Penempatan
-                        </span>
-
-                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                            Segera
-                        </span>
-                    </div>
+                    {{-- Penempatan - Aktif --}}
+                    <a
+                        href="{{ route('admin.penempatans.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.penempatans.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.penempatans.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+                        Penempatan
+                    </a>
 
                     <!-- Monitoring -->
                     <div class="pt-3 pb-1 px-3 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
@@ -192,7 +187,9 @@
                     </div>
 
                     @foreach(['Absensi', 'Logbook', 'Tugas'] as $item)
+
                         <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
                                 {{ $item }}
@@ -201,7 +198,9 @@
                             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
                                 Segera
                             </span>
+
                         </div>
+
                     @endforeach
 
                     <!-- Lainnya -->
@@ -210,7 +209,9 @@
                     </div>
 
                     @foreach(['Penilaian', 'Dokumen', 'Laporan', 'Sertifikat', 'Manajemen Pengguna', 'Pengaturan'] as $item)
+
                         <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
                                 {{ $item }}
@@ -219,7 +220,9 @@
                             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
                                 Segera
                             </span>
+
                         </div>
+
                     @endforeach
 
                 @elseif(Auth::user()->isMentor())
@@ -235,7 +238,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 4 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                         </svg>
 
@@ -247,7 +250,9 @@
                     </div>
 
                     @foreach(['Mahasiswa Bimbingan', 'Absensi', 'Logbook', 'Tugas', 'Penilaian'] as $item)
+
                         <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
                                 {{ $item }}
@@ -256,7 +261,9 @@
                             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
                                 Segera
                             </span>
+
                         </div>
+
                     @endforeach
 
                 @elseif(Auth::user()->isMahasiswa())
@@ -272,7 +279,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a2 2 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1v-4a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                             />
                         </svg>
 
@@ -284,7 +291,9 @@
                     </div>
 
                     @foreach(['Absensi', 'Logbook', 'Tugas', 'Dokumen', 'Progress'] as $item)
+
                         <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
                             <span class="flex items-center gap-3">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
                                 {{ $item }}
@@ -293,7 +302,9 @@
                             <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
                                 Segera
                             </span>
+
                         </div>
+
                     @endforeach
 
                 @endif
@@ -312,7 +323,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7 7z"
                         />
                     </svg>
 
@@ -321,7 +332,7 @@
 
             </nav>
 
-            <!-- Sidebar Footer / Logout -->
+            <!-- Sidebar Footer -->
             <div class="p-4 border-t border-emerald-800/80 bg-emerald-900/40">
 
                 <form method="POST" action="{{ route('logout') }}">
@@ -348,7 +359,7 @@
 
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <div class="flex-1 flex flex-col min-w-0">
 
             <!-- Top Navbar -->
@@ -388,6 +399,7 @@
                     <div class="flex items-center gap-3">
 
                         <div class="text-right hidden sm:block">
+
                             <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                 {{ Auth::user()->name }}
                             </div>
@@ -403,6 +415,7 @@
                                     {{ Auth::user()->role }}
                                 @endif
                             </div>
+
                         </div>
 
                         <div class="w-10 h-10 rounded-full bg-emerald-800 text-amber-300 flex items-center justify-center font-bold text-sm shadow-md ring-2 ring-emerald-600/30">

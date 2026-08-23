@@ -34,4 +34,12 @@ class PeriodeMagang extends Model
     {
         return $this->hasMany(MentorPeriode::class);
     }
+
+    /**
+     * Relasi penempatan mahasiswa.
+     */
+    public function penempatans(): HasMany
+    {
+        return $this->hasMany(Penempatan::class);
+    }
 }

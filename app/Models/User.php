@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Mahasiswa;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -58,5 +59,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * User memiliki satu profil Mahasiswa.
+     */
+    public function mahasiswa(): HasOne
+    {
+        return $this->hasOne(Mahasiswa::class);
     }
 }

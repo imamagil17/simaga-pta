@@ -10,35 +10,36 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'user_id',
-    'nip',
-    'jabatan',
-    'bagian',
+    'nim',
+    'perguruan_tinggi',
+    'program_studi',
     'jenis_kelamin',
     'agama',
     'no_hp',
+    'alamat',
     'foto',
     'status',
     'keterangan',
 ])]
-class Mentor extends Model
+class Mahasiswa extends Model
 {
-    /** @use HasFactory<\Database\Factories\MentorFactory> */
+    /** @use HasFactory<\Database\Factories\MahasiswaFactory> */
     use HasFactory;
 
     /**
-     * Default status profil mentor.
+     * Default status profil mahasiswa.
      */
     protected static function booted(): void
     {
-        static::creating(function (Mentor $mentor): void {
-            if ($mentor->status === null) {
-                $mentor->status = 'active';
+        static::creating(function (Mahasiswa $mahasiswa): void {
+            if ($mahasiswa->status === null) {
+                $mahasiswa->status = 'active';
             }
         });
     }
 
     /**
-     * Mentor belongs to a User.
+     * Mahasiswa belongs to a User.
      */
     public function user(): BelongsTo
     {
@@ -46,15 +47,7 @@ class Mentor extends Model
     }
 
     /**
-     * Relasi ke penugasan periode magang.
-     */
-    public function mentorPeriodes(): HasMany
-    {
-        return $this->hasMany(MentorPeriode::class);
-    }
-
-    /**
-     * Relasi penempatan mahasiswa.
+     * Mahasiswa memiliki banyak penempatan.
      */
     public function penempatans(): HasMany
     {
