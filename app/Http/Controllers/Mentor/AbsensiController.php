@@ -247,4 +247,134 @@ class AbsensiController extends Controller
                 'Absensi telah ditolak dan alasan penolakan berhasil disimpan.'
             );
     }
+
+    /**
+     * Menampilkan rekap absensi seluruh mahasiswa bimbingan mentor.
+     */
+    public function rekap(): View
+    {
+        $mentor = Mentor::query()
+            ->where('user_id', Auth::id())
+            ->where('status', 'active')
+            ->first();
+
+        if (! $mentor) {
+            abort(404);
+        }
+
+        $penempatanIds = $mentor->penempatans()
+            ->where('status', 'active')
+            ->pluck('id');
+
+        $absensis = Absensi::query()
+            ->whereIn('penempatan_id', $penempatanIds)
+            ->with([
+                'penempatan.mahasiswa.user',
+                'penempatan.periodeMagang',
+            ])
+            ->orderByDesc('tanggal')
+            ->get();
+
+        $mahasiswaRekap = $absensis
+            ->groupBy('penempatan.mahasiswa_id')
+            ->map(function ($items) {
+                $mahasiswa = $items->first()->penempatan->mahasiswa;
+
+                return [
+                    'mahasiswa' => $mahasiswa,
+
+                    'total' => $items->count(),
+
+                    'hadir' => $items
+                        ->where('status_kehadiran', 'hadir')
+                        ->count(),
+
+                    'izin' => $items
+                        ->where('status_kehadiran', 'izin')
+                        ->count(),
+
+                    'sakit' => $items
+                        ->where('status_kehadiran', 'sakit')
+                        ->count(),
+
+                    'alpa' => $items
+                        ->where('status_kehadiran', 'alpa')
+                        ->count(),
+
+                    'terlambat' => $items
+                        ->whereNotNull('menit_terlambat')
+                        ->count(),
+
+                    'total_menit_terlambat' => $items->sum(
+                        fn(Absensi $absensi) =>
+                        $absensi->menit_terlambat ?? 0
+                    ),
+
+                    'approved' => $items
+                        ->where('status_verifikasi', 'approved')
+                        ->count(),
+
+                    'pending' => $items
+                        ->where('status_verifikasi', 'pending')
+                        ->count(),
+
+                    'rejected' => $items
+                        ->where('status_verifikasi', 'rejected')
+                        ->count(),
+                ];
+            })
+            ->sortBy(
+                fn($item) => strtolower(
+                    $item['mahasiswa']->user->name
+                )
+            )
+            ->values();
+
+        $rekap = [
+            'total_mahasiswa' => $mahasiswaRekap->count(),
+            'total_absensi' => $absensis->count(),
+
+            'hadir' => $absensis
+                ->where('status_kehadiran', 'hadir')
+                ->count(),
+
+            'izin' => $absensis
+                ->where('status_kehadiran', 'izin')
+                ->count(),
+
+            'sakit' => $absensis
+                ->where('status_kehadiran', 'sakit')
+                ->count(),
+
+            'alpa' => $absensis
+                ->where('status_kehadiran', 'alpa')
+                ->count(),
+
+            'terlambat' => $absensis
+                ->whereNotNull('menit_terlambat')
+                ->count(),
+
+            'total_menit_terlambat' => $absensis->sum(
+                fn(Absensi $absensi) =>
+                $absensi->menit_terlambat ?? 0
+            ),
+
+            'approved' => $absensis
+                ->where('status_verifikasi', 'approved')
+                ->count(),
+
+            'pending' => $absensis
+                ->where('status_verifikasi', 'pending')
+                ->count(),
+
+            'rejected' => $absensis
+                ->where('status_verifikasi', 'rejected')
+                ->count(),
+        ];
+
+        return view('mentor.absensi.rekap', [
+            'mahasiswaRekap' => $mahasiswaRekap,
+            'rekap' => $rekap,
+        ]);
+    }
 }

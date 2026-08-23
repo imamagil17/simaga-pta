@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AbsensiController as AdminAbsensiController;
 use App\Http\Controllers\Mahasiswa\AbsensiController as MahasiswaAbsensiController;
 use App\Http\Controllers\Mentor\AbsensiController as MentorAbsensiController;
 use App\Http\Controllers\Admin\MahasiswaController;
@@ -217,6 +218,21 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::put('/penempatans/{penempatan}/toggle-status', [PenempatanController::class, 'toggleStatus'])
             ->name('penempatans.toggle-status');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Absensi
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/absensi', [AdminAbsensiController::class, 'index'])
+            ->name('absensi.index');
+
+        Route::get('/absensi/export', [AdminAbsensiController::class, 'export'])
+            ->name('absensi.export');
+
+        Route::get('/absensi/{absensi}', [AdminAbsensiController::class, 'show'])
+            ->name('absensi.show');
     });
 
 /*
@@ -241,6 +257,9 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
         */
         Route::get('/absensi', [MentorAbsensiController::class, 'index'])
             ->name('absensi.index');
+
+        Route::get('/absensi/rekap', [MentorAbsensiController::class, 'rekap'])
+            ->name('absensi.rekap');
 
         Route::get('/absensi/{absensi}', [MentorAbsensiController::class, 'show'])
             ->name('absensi.show');
