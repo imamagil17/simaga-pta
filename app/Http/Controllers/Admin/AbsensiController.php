@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Absensi;
 use App\Models\Mentor;
 use App\Models\PeriodeMagang;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -14,6 +15,13 @@ class AbsensiController extends Controller
 {
     /**
      * Query dasar monitoring absensi.
+     *
+     * Query ini digunakan bersama oleh:
+     * - Monitoring
+     * - Export CSV/Excel
+     * - Export PDF
+     *
+     * Sehingga data dan filter selalu konsisten.
      */
     protected function absensiQuery(Request $request)
     {
@@ -179,29 +187,134 @@ class AbsensiController extends Controller
                     $absensi->penempatan->mentor->user->name ?? '-',
                     $absensi->penempatan->periodeMagang->nama_periode ?? '-',
                     optional($absensi->tanggal)->format('d-m-Y') ?? '-',
+
                     $absensi->jam_masuk
                         ? substr($absensi->jam_masuk, 0, 5)
                         : '-',
+
                     $absensi->jam_pulang
                         ? substr($absensi->jam_pulang, 0, 5)
                         : '-',
+
                     ucfirst($absensi->status_kehadiran ?? '-'),
+
                     $absensi->menit_terlambat ?? '-',
+
                     match ($absensi->status_verifikasi) {
                         'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
                         default => 'Menunggu',
                     },
-                    $absensi->paraf_mahasiswa ? 'Sudah Paraf' : 'Belum Paraf',
-                    $absensi->paraf_mentor ? 'Sudah Paraf' : 'Belum Paraf',
+
+                    $absensi->paraf_mahasiswa
+                        ? 'Sudah Paraf'
+                        : 'Belum Paraf',
+
+                    $absensi->paraf_mentor
+                        ? 'Sudah Paraf'
+                        : 'Belum Paraf',
+
                 ], ';');
             }
 
             fclose($handle);
         }, $filename, [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+
+            'Content-Disposition' =>
+            'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Export monitoring absensi ke PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $absensis = $this->absensiQuery($request)->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rekap untuk PDF
+        |--------------------------------------------------------------------------
+        */
+        $rekap = [
+            'total' => $absensis->count(),
+
+            'hadir' => $absensis
+                ->where('status_kehadiran', 'hadir')
+                ->count(),
+
+            'izin' => $absensis
+                ->where('status_kehadiran', 'izin')
+                ->count(),
+
+            'sakit' => $absensis
+                ->where('status_kehadiran', 'sakit')
+                ->count(),
+
+            'alpa' => $absensis
+                ->where('status_kehadiran', 'alpa')
+                ->count(),
+
+            'terlambat' => $absensis
+                ->whereNotNull('menit_terlambat')
+                ->count(),
+
+            'total_menit_terlambat' => $absensis->sum(
+                fn(Absensi $absensi) =>
+                $absensi->menit_terlambat ?? 0
+            ),
+
+            'approved' => $absensis
+                ->where('status_verifikasi', 'approved')
+                ->count(),
+
+            'pending' => $absensis
+                ->where('status_verifikasi', 'pending')
+                ->count(),
+
+            'rejected' => $absensis
+                ->where('status_verifikasi', 'rejected')
+                ->count(),
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buat PDF
+        |--------------------------------------------------------------------------
+        */
+        $pdf = Pdf::loadView('admin.absensi.pdf', [
+            'absensis' => $absensis,
+
+            'rekap' => $rekap,
+
+            'filters' => [
+                'periode_id' => $request->integer('periode_id'),
+                'mentor_id' => $request->integer('mentor_id'),
+                'status_verifikasi' => $request->input('status_verifikasi'),
+                'tanggal' => $request->input('tanggal'),
+            ],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ukuran PDF
+        |--------------------------------------------------------------------------
+        |
+        | Landscape dipilih karena tabel cukup lebar.
+        |
+        */
+        $pdf->setPaper('a4', 'landscape');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Download
+        |--------------------------------------------------------------------------
+        */
+        return $pdf->download(
+            'laporan-absensi-' . now()->format('Y-m-d-His') . '.pdf'
+        );
     }
 
     /**

@@ -231,6 +231,9 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
         Route::get('/absensi/export', [AdminAbsensiController::class, 'export'])
             ->name('absensi.export');
 
+        Route::get('/absensi/export-pdf', [AdminAbsensiController::class, 'exportPdf'])
+            ->name('absensi.export-pdf');
+
         Route::get('/absensi/{absensi}', [AdminAbsensiController::class, 'show'])
             ->name('absensi.show');
     });

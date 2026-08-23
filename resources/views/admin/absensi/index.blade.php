@@ -24,6 +24,7 @@
                     </p>
                 </div>
 
+                {{-- Export Excel --}}
                 <a
                     href="{{ route('admin.absensi.export', request()->query()) }}"
                     class="inline-flex w-fit items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800">
@@ -42,6 +43,25 @@
                     Export Excel
                 </a>
 
+                {{-- Export PDF --}}
+                <a
+                    href="{{ route('admin.absensi.export-pdf', request()->query()) }}"
+                    class="inline-flex w-fit items-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-900/20 dark:text-rose-300 dark:hover:bg-rose-900/40">
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14" />
+                    </svg>
+
+                    Export PDF
+                </a>
+                
                 <a
                     href="{{ route('admin.dashboard') }}"
                     class="inline-flex w-fit items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
