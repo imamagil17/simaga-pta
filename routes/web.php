@@ -82,6 +82,9 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
             
         Route::post('/users', [UserController::class, 'store'])
             ->name('users.store');
+
+        Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])
+            ->name('users.reset-password');
     });
 
 /*

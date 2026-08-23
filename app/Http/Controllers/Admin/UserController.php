@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -41,17 +43,15 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
-        // Administrator tidak boleh menonaktifkan dirinya sendiri.
-        if (
-            $user->is(auth()->user()) &&
-            $request->input('status') === 'inactive'
-        ) {
-            return back()
-                ->withErrors([
-                    'status' => 'Administrator yang sedang digunakan tidak dapat dinonaktifkan.',
-                ])
-                ->withInput();
-        }
+        $isAdministrator = $user->isAdministrator();
+
+        $roleRules = $isAdministrator
+            ? ['required', Rule::in(['administrator'])]
+            : ['required', Rule::in(['mentor', 'mahasiswa'])];
+
+        $statusRules = $isAdministrator
+            ? ['required', Rule::in(['active'])]
+            : ['required', Rule::in(['active', 'inactive'])];
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -62,8 +62,8 @@ class UserController extends Controller
                 'max:255',
                 'unique:users,email,' . $user->id,
             ],
-            'role' => ['required', 'in:administrator,mentor,mahasiswa'],
-            'status' => ['required', 'in:active,inactive'],
+            'role' => $roleRules,
+            'status' => $statusRules,
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -71,7 +71,7 @@ class UserController extends Controller
             'email.unique' => 'Email tersebut sudah digunakan oleh pengguna lain.',
             'role.required' => 'Role pengguna wajib dipilih.',
             'role.in' => 'Role pengguna tidak valid.',
-            'status.required' => 'Status akun wajib dipilih.',
+            'status.required' => 'Status akun wajib diisi.',
             'status.in' => 'Status akun tidak valid.',
         ]);
 
@@ -80,6 +80,23 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'Data pengguna berhasil diperbarui.');
+    }
+    /**
+     * Mereset password pengguna.
+     */
+    public function resetPassword(User $user): RedirectResponse
+    {
+        $temporaryPassword = Str::random(12);
+
+        $user->update([
+            'password' => $temporaryPassword,
+            'must_change_password' => true,
+        ]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'Password pengguna berhasil direset.')
+            ->with('temporary_password', $temporaryPassword);
     }
     /**
      * Menyimpan pengguna baru.

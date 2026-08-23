@@ -137,30 +137,43 @@
                         Role Pengguna
                     </label>
 
-                    <select
-                        id="role"
-                        name="role"
-                        required
-                        class="block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
-                    >
-                        <option value="mentor" @selected(old('role', $user->role) === 'mentor')}>
-                            Mentor
-                        </option>
+                    @if ($user->isAdministrator())
+                        <input
+                            type="text"
+                            value="Administrator PTA"
+                            disabled
+                            class="block w-full rounded-xl border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-400"
+                        >
 
-                        <option value="mahasiswa" @selected(old('role', $user->role) === 'mahasiswa')}>
-                            Mahasiswa Magang
-                        </option>
+                        <input
+                            type="hidden"
+                            name="role"
+                            value="administrator"
+                        >
 
-                        @if ($user->role === 'administrator')
-                            <option value="administrator" selected>
-                                Administrator PTA
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Role Administrator PTA tidak dapat diubah melalui Manajemen Pengguna.
+                        </p>
+                    @else
+                        <select
+                            id="role"
+                            name="role"
+                            required
+                            class="block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+                        >
+                            <option value="mentor" @selected(old('role', $user->role) === 'mentor')>
+                                Mentor
                             </option>
-                        @endif
-                    </select>
 
-                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Administrator PTA tidak dapat diubah menjadi role lain secara tidak sengaja.
-                    </p>
+                            <option value="mahasiswa" @selected(old('role', $user->role) === 'mahasiswa')>
+                                Mahasiswa Magang
+                            </option>
+                        </select>
+
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Role dapat diubah antara Mentor dan Mahasiswa Magang.
+                        </p>
+                    @endif
                 </div>
 
                 {{-- Status --}}
@@ -172,20 +185,43 @@
                         Status Akun
                     </label>
 
-                    <select
-                        id="status"
-                        name="status"
-                        required
-                        class="block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
-                    >
-                        <option value="active" @selected(old('status', $user->status) === 'active')}>
-                            Aktif
-                        </option>
+                    @if ($user->isAdministrator())
+                        <input
+                            type="text"
+                            value="Aktif"
+                            disabled
+                            class="block w-full rounded-xl border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-900/60 dark:text-gray-400"
+                        >
 
-                        <option value="inactive" @selected(old('status', $user->status) === 'inactive')}>
-                            Tidak Aktif
-                        </option>
-                    </select>
+                        <input
+                            type="hidden"
+                            name="status"
+                            value="active"
+                        >
+
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Akun Administrator PTA tidak dapat dinonaktifkan melalui Manajemen Pengguna.
+                        </p>
+                    @else
+                        <select
+                            id="status"
+                            name="status"
+                            required
+                            class="block w-full rounded-xl border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+                        >
+                            <option value="active" @selected(old('status', $user->status) === 'active')>
+                                Aktif
+                            </option>
+
+                            <option value="inactive" @selected(old('status', $user->status) === 'inactive')>
+                                Tidak Aktif
+                            </option>
+                        </select>
+
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Akun tidak aktif tidak dapat digunakan untuk login.
+                        </p>
+                    @endif
                 </div>
 
                 {{-- Password Status --}}
