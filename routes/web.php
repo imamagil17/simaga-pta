@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Mahasiswa\AbsensiController;
+use App\Http\Controllers\Mahasiswa\AbsensiController as MahasiswaAbsensiController;
+use App\Http\Controllers\Mentor\AbsensiController as MentorAbsensiController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
@@ -232,6 +233,23 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
         Route::get('/dashboard', function () {
             return view('mentor.dashboard');
         })->name('dashboard');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Absensi
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/absensi', [MentorAbsensiController::class, 'index'])
+            ->name('absensi.index');
+
+        Route::get('/absensi/{absensi}', [MentorAbsensiController::class, 'show'])
+            ->name('absensi.show');
+
+        Route::post('/absensi/{absensi}/approve', [MentorAbsensiController::class, 'approve'])
+            ->name('absensi.approve');
+
+        Route::post('/absensi/{absensi}/reject', [MentorAbsensiController::class, 'reject'])
+            ->name('absensi.reject');
     });
 
 /*
@@ -249,18 +267,21 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
             return view('mahasiswa.dashboard');
         })->name('dashboard');
 
-        /*
+    /*
         |--------------------------------------------------------------------------
         | Absensi
         |--------------------------------------------------------------------------
         */
-        Route::get('/absensi', [AbsensiController::class, 'index'])
+        Route::get('/absensi', [MahasiswaAbsensiController::class, 'index'])
             ->name('absensi.index');
 
-        Route::post('/absensi/masuk', [AbsensiController::class, 'storeMasuk'])
+        Route::get('/absensi/riwayat', [MahasiswaAbsensiController::class, 'riwayat'])
+            ->name('absensi.riwayat');
+
+        Route::post('/absensi/masuk', [MahasiswaAbsensiController::class, 'storeMasuk'])
             ->name('absensi.masuk');
 
-        Route::post('/absensi/pulang', [AbsensiController::class, 'storePulang'])
+        Route::post('/absensi/pulang', [MahasiswaAbsensiController::class, 'storePulang'])
             ->name('absensi.pulang');
     });
 

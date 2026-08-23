@@ -61,6 +61,112 @@ class AbsensiController extends Controller
     }
 
     /**
+     * Menampilkan riwayat dan rekap absensi mahasiswa.
+     */
+    public function riwayat(): View
+    {
+        $user = Auth::user();
+
+        $penempatan = Penempatan::query()
+            ->with([
+                'mahasiswa.user',
+                'mentor.user',
+                'periodeMagang',
+            ])
+            ->whereHas('mahasiswa', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->latest()
+            ->first();
+
+        if (! $penempatan) {
+            return view('mahasiswa.absensi.riwayat', [
+                'penempatan' => null,
+                'absensis' => collect(),
+                'rekap' => [
+                    'total' => 0,
+                    'hadir' => 0,
+                    'izin' => 0,
+                    'sakit' => 0,
+                    'alpa' => 0,
+                    'terlambat' => 0,
+                    'total_menit_terlambat' => 0,
+                    'approved' => 0,
+                    'pending' => 0,
+                    'rejected' => 0,
+                ],
+            ]);
+        }
+
+        $absensis = Absensi::query()
+            ->whereHas('penempatan', function ($query) use ($penempatan) {
+                $query->where('mahasiswa_id', $penempatan->mahasiswa_id);
+            })
+            ->with([
+                'penempatan.periodeMagang',
+                'penempatan.mentor.user',
+            ])
+            ->orderByDesc('tanggal')
+            ->orderByDesc('jam_masuk')
+            ->get();
+
+        $rekap = [
+            'total' => $absensis->count(),
+
+            'hadir' => $absensis
+                ->where('status_kehadiran', 'hadir')
+                ->count(),
+
+            'izin' => $absensis
+                ->where('status_kehadiran', 'izin')
+                ->count(),
+
+            'sakit' => $absensis
+                ->where('status_kehadiran', 'sakit')
+                ->count(),
+
+            'alpa' => $absensis
+                ->where('status_kehadiran', 'alpa')
+                ->count(),
+
+            /*
+        |--------------------------------------------------------------------------
+        | Keterlambatan
+        |--------------------------------------------------------------------------
+        |
+        | Hanya absensi dengan menit_terlambat yang dihitung.
+        | Kalau NULL berarti tidak terlambat.
+        |
+        */
+            'terlambat' => $absensis
+                ->whereNotNull('menit_terlambat')
+                ->count(),
+
+            'total_menit_terlambat' => $absensis
+                ->sum(function (Absensi $absensi) {
+                    return $absensi->menit_terlambat ?? 0;
+                }),
+
+            'approved' => $absensis
+                ->where('status_verifikasi', 'approved')
+                ->count(),
+
+            'pending' => $absensis
+                ->where('status_verifikasi', 'pending')
+                ->count(),
+
+            'rejected' => $absensis
+                ->where('status_verifikasi', 'rejected')
+                ->count(),
+        ];
+
+        return view('mahasiswa.absensi.riwayat', [
+            'penempatan' => $penempatan,
+            'absensis' => $absensis,
+            'rekap' => $rekap,
+        ]);
+    }
+    /**
      * Menyimpan absen masuk mahasiswa.
      */
     public function storeMasuk(

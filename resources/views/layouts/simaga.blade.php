@@ -313,23 +313,90 @@
                         Bimbingan & Evaluasi
                     </div>
 
-                    @foreach(['Mahasiswa Bimbingan', 'Absensi', 'Logbook', 'Tugas', 'Penilaian'] as $item)
+                    {{-- Mahasiswa Bimbingan - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
-                        <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Mahasiswa Bimbingan
+                        </span>
 
-                            <span class="flex items-center gap-3">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
 
-                                {{ $item }}
+                    </div>
+
+                    {{-- Absensi - Aktif --}}
+                    <a
+                        href="{{ route('mentor.absensi.index') }}"
+                        class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.absensi.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}"
+                    >
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.absensi.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                            Absensi
+                        </span>
+
+                        @php
+                            $pendingAbsensiCount = \App\Models\Absensi::query()
+                                ->where('status_verifikasi', 'pending')
+                                ->whereHas('penempatan', function ($query) {
+                                    $query
+                                        ->where('mentor_id', auth()->user()->mentor?->id)
+                                        ->where('status', 'active');
+                                })
+                                ->count();
+                        @endphp
+
+                        @if ($pendingAbsensiCount > 0)
+                            <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                {{ $pendingAbsensiCount }}
                             </span>
+                        @endif
+                    </a>
 
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                                Segera
-                            </span>
+                    {{-- Logbook - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
-                        </div>
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Logbook
+                        </span>
 
-                    @endforeach
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Tugas - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Tugas
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
+
+                    {{-- Penilaian - Segera --}}
+                    <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+
+                        <span class="flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+                            Penilaian
+                        </span>
+
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
+                            Segera
+                        </span>
+
+                    </div>
 
                 @elseif(Auth::user()->isMahasiswa())
 
@@ -344,7 +411,7 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0h6"
+                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0h6"
                             />
                         </svg>
 

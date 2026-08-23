@@ -8,7 +8,7 @@ class StoreAbsensiPulangRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->isMahasiswa();
+        return $this->user()?->isMahasiswa() ?? false;
     }
 
     public function rules(): array
