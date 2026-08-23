@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\MentorController;
+use App\Http\Controllers\Admin\MentorPeriodeController;
+use App\Http\Controllers\Admin\PeriodeMagangController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\ProfileController;
@@ -64,27 +67,100 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
     ->as('admin.')
     ->group(function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Manajemen Pengguna
+        |--------------------------------------------------------------------------
+        */
         Route::get('/users', [UserController::class, 'index'])
             ->name('users.index');
 
         Route::get('/users/create', [UserController::class, 'create'])
             ->name('users.create');
 
+        Route::post('/users', [UserController::class, 'store'])
+            ->name('users.store');
+
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])
             ->name('users.edit');
 
         Route::put('/users/{user}', [UserController::class, 'update'])
             ->name('users.update');
-            
-        Route::post('/users', [UserController::class, 'store'])
-            ->name('users.store');
 
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Mentor
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/mentors', [MentorController::class, 'index'])
+            ->name('mentors.index');
+
+        Route::get('/mentors/{user}/profile/create', [MentorController::class, 'create'])
+            ->name('mentors.profile.create');
+
+        Route::post('/mentors/{user}/profile', [MentorController::class, 'store'])
+            ->name('mentors.profile.store');
+
+        Route::get('/mentors/{user}/profile/edit', [MentorController::class, 'edit'])
+            ->name('mentors.profile.edit');
+
+        Route::put('/mentors/{user}/profile', [MentorController::class, 'update'])
+            ->name('mentors.profile.update');
+
+        Route::get('/mentors/{user}/profile', [MentorController::class, 'show'])
+            ->name('mentors.profile.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Periode Magang
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/periode-magangs', [PeriodeMagangController::class, 'index'])
+            ->name('periode-magangs.index');
+
+        Route::get('/periode-magangs/create', [PeriodeMagangController::class, 'create'])
+            ->name('periode-magangs.create');
+
+        Route::post('/periode-magangs', [PeriodeMagangController::class, 'store'])
+            ->name('periode-magangs.store');
+
+        Route::get('/periode-magangs/{periodeMagang}/edit', [PeriodeMagangController::class, 'edit'])
+            ->name('periode-magangs.edit');
+
+        Route::put('/periode-magangs/{periodeMagang}', [PeriodeMagangController::class, 'update'])
+            ->name('periode-magangs.update');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mentor pada Periode Magang
+        |--------------------------------------------------------------------------
+        */
+        Route::get(
+            '/periode-magangs/{periodeMagang}/mentors',
+            [MentorPeriodeController::class, 'index']
+        )->name('periode-magangs.mentors.index');
+
+        Route::post(
+            '/periode-magangs/{periodeMagang}/mentors',
+            [MentorPeriodeController::class, 'store']
+        )->name('periode-magangs.mentors.store');
+
+        Route::put(
+            '/mentor-periodes/{mentorPeriode}',
+            [MentorPeriodeController::class, 'update']
+        )->name('mentor-periodes.update');
     });
 
 /*
