@@ -5,12 +5,14 @@ use App\Http\Controllers\Mahasiswa\AbsensiController as MahasiswaAbsensiControll
 use App\Http\Controllers\Mentor\AbsensiController as MentorAbsensiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MahasiswaController;
+use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Mahasiswa\LogbookController as MahasiswaLogbookController;
 use App\Http\Controllers\Mentor\LogbookController as MentorLogbookController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
 use App\Http\Controllers\Admin\PenempatanController;
+use App\Http\Controllers\Mentor\TugasController as MentorTugasController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\ProfileController;
@@ -238,6 +240,17 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::get('/absensi/{absensi}', [AdminAbsensiController::class, 'show'])
             ->name('absensi.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logbook
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/logbook', [AdminLogbookController::class, 'index'])
+            ->name('logbook.index');
+
+        Route::get('/logbook/{logbook}', [AdminLogbookController::class, 'show'])
+            ->name('logbook.show');
     });
 
 /*
@@ -286,6 +299,35 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
 
         Route::post('/logbook/{logbook}/revision', [MentorLogbookController::class, 'revision'])
             ->name('logbook.revision');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Tugas
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/tugas', [MentorTugasController::class, 'index'])
+            ->name('tugas.index');
+
+        Route::get('/tugas/create', [MentorTugasController::class, 'create'])
+            ->name('tugas.create');
+
+        Route::post('/tugas', [MentorTugasController::class, 'store'])
+            ->name('tugas.store');
+
+        Route::get('/tugas/{tugas}', [MentorTugasController::class, 'show'])
+            ->name('tugas.show');
+
+        Route::get('/tugas/{tugas}/edit', [MentorTugasController::class, 'edit'])
+            ->name('tugas.edit');
+
+        Route::put('/tugas/{tugas}', [MentorTugasController::class, 'update'])
+            ->name('tugas.update');
+
+        Route::post('/tugas/{tugas}/publish', [MentorTugasController::class, 'publish'])
+            ->name('tugas.publish');
+
+        Route::post('/tugas/{tugas}/close', [MentorTugasController::class, 'close'])
+            ->name('tugas.close');
     });
 
 /*

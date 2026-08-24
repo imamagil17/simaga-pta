@@ -182,19 +182,13 @@
                     </span>
                 </a>
 
-                {{-- Logbook --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
-
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Logbook
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                {{-- Logbook - Aktif --}}
+                <a
+                    href="{{ route('admin.logbook.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+                    Logbook
+                </a>
 
                 {{-- Tugas --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
@@ -405,19 +399,14 @@
 
                 </a>
 
-                {{-- Tugas --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                {{-- Tugas - Aktif --}}
+                <a
+                    href="{{ route('mentor.tugas.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.tugas.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.tugas.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Tugas
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Tugas
+                </a>
 
                 {{-- Penilaian --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">

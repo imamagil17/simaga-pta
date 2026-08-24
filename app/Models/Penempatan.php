@@ -92,4 +92,9 @@ class Penempatan extends Model
     {
         return $this->hasMany(Logbook::class);
     }
+
+    public function tugas(): HasMany
+    {
+        return $this->hasMany(Tugas::class);
+    }
 }
