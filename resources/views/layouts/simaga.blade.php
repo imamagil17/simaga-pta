@@ -124,7 +124,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0a1 1 0 011 1v4a1 1 0 011 1m-6 0h6" />
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 01-1 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
 
                     Dashboard
@@ -305,7 +305,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 1 0 001 1m-6 0h6" />
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
 
                     Dashboard
@@ -335,9 +335,11 @@
                     class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.absensi.index') || request()->routeIs('mentor.absensi.show') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
                     <span class="flex items-center gap-3">
+
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.absensi.index') || request()->routeIs('mentor.absensi.show') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
                         Absensi
+
                     </span>
 
                     @php
@@ -365,25 +367,43 @@
                 <a
                     href="{{ route('mentor.absensi.rekap') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.absensi.rekap') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.absensi.rekap') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
-
                     Rekap Absensi
                 </a>
 
-                {{-- Logbook --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                {{-- Logbook - Aktif --}}
+                <a
+                    href="{{ route('mentor.logbook.index') }}"
+                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
                     <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Logbook
+
                     </span>
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
+                    @php
+                    $pendingLogbookCount = \App\Models\Logbook::query()
+                    ->where('status', 'submitted')
+                    ->whereHas('penempatan', function ($query) {
+                    $query
+                    ->where('mentor_id', auth()->user()->mentor?->id)
+                    ->where('status', 'active');
+                    })
+                    ->count();
+                    @endphp
+
+                    @if ($pendingLogbookCount > 0)
+
+                    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {{ $pendingLogbookCount }}
                     </span>
 
-                </div>
+                    @endif
+
+                </a>
 
                 {{-- Tugas --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
@@ -443,19 +463,13 @@
                     Absensi
                 </a>
 
-                {{-- Logbook --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
-
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Logbook
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                {{-- Logbook - Aktif --}}
+                <a
+                    href="{{ route('mahasiswa.logbook.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+                    Logbook
+                </a>
 
                 {{-- Tugas --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
@@ -514,7 +528,7 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7-7 0 00-7-7z" />
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
 
                     Profil Saya
@@ -541,7 +555,6 @@
 
                         Keluar
                     </button>
-
                 </form>
 
             </div>
@@ -566,7 +579,7 @@
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18H4" />
+                                    d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
 
@@ -632,6 +645,7 @@
         </div>
 
     </div>
+
 </body>
 
 </html>

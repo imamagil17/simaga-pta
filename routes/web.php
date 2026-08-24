@@ -3,7 +3,10 @@
 use App\Http\Controllers\Admin\AbsensiController as AdminAbsensiController;
 use App\Http\Controllers\Mahasiswa\AbsensiController as MahasiswaAbsensiController;
 use App\Http\Controllers\Mentor\AbsensiController as MentorAbsensiController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MahasiswaController;
+use App\Http\Controllers\Mahasiswa\LogbookController as MahasiswaLogbookController;
+use App\Http\Controllers\Mentor\LogbookController as MentorLogbookController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
@@ -72,14 +75,13 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
     ->as('admin.')
     ->group(function () {
 
-        /*
+    /*
         |--------------------------------------------------------------------------
         | Dashboard
         |--------------------------------------------------------------------------
         */
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+            ->name('dashboard');
 
         /*
         |--------------------------------------------------------------------------
@@ -272,6 +274,18 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
 
         Route::post('/absensi/{absensi}/reject', [MentorAbsensiController::class, 'reject'])
             ->name('absensi.reject');
+
+        Route::get('/logbook', [MentorLogbookController::class, 'index'])
+            ->name('logbook.index');
+
+        Route::get('/logbook/{logbook}', [MentorLogbookController::class, 'show'])
+            ->name('logbook.show');
+
+        Route::post('/logbook/{logbook}/approve', [MentorLogbookController::class, 'approve'])
+            ->name('logbook.approve');
+
+        Route::post('/logbook/{logbook}/revision', [MentorLogbookController::class, 'revision'])
+            ->name('logbook.revision');
     });
 
 /*
@@ -305,6 +319,29 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
 
         Route::post('/absensi/pulang', [MahasiswaAbsensiController::class, 'storePulang'])
             ->name('absensi.pulang');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Logbook
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/logbook', [MahasiswaLogbookController::class, 'index'])
+            ->name('logbook.index');
+
+        Route::get('/logbook/create', [MahasiswaLogbookController::class, 'create'])
+            ->name('logbook.create');
+
+        Route::post('/logbook', [MahasiswaLogbookController::class, 'store'])
+            ->name('logbook.store');
+
+        Route::get('/logbook/{logbook}/edit', [MahasiswaLogbookController::class, 'edit'])
+            ->name('logbook.edit');
+
+        Route::put('/logbook/{logbook}', [MahasiswaLogbookController::class, 'update'])
+            ->name('logbook.update');
+
+        Route::post('/logbook/{logbook}/submit', [MahasiswaLogbookController::class, 'submit'])
+            ->name('logbook.submit');
     });
 
 /*

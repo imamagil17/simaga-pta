@@ -84,4 +84,12 @@ class Penempatan extends Model
     {
         return $this->hasMany(Absensi::class);
     }
+
+    /**
+     * Penempatan memiliki banyak logbook.
+     */
+    public function logbooks(): HasMany
+    {
+        return $this->hasMany(Logbook::class);
+    }
 }
