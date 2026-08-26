@@ -276,32 +276,22 @@
                 </a>
 
                 {{-- Laporan --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.laporan.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.laporan.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.laporan.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Laporan
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Laporan
+                </a>
 
                 {{-- Sertifikat --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.sertifikat.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.sertifikat.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.sertifikat.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Sertifikat
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Sertifikat
+                </a>
 
                 {{-- Manajemen Pengguna --}}
                 <a
@@ -315,21 +305,16 @@
                 </a>
 
                 {{-- Pengaturan --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.settings.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.settings.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.settings.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Pengaturan
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Pengaturan
+                </a>
 
                 <!-- =========================================================
-                     MENTOR
+                MENTOR
                 ========================================================== -->
                 @elseif(Auth::user()->isMentor())
 
@@ -362,18 +347,13 @@
                 </div>
 
                 {{-- Mahasiswa Bimbingan --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('mentor.mahasiswa-bimbingan.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.mahasiswa-bimbingan.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.mahasiswa-bimbingan.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Mahasiswa Bimbingan
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Mahasiswa Bimbingan
+                </a>
 
                 {{-- Absensi --}}
                 <a
@@ -535,6 +515,15 @@
 
                 </a>
 
+                {{-- Sertifikat --}}
+                <a
+                    href="{{ route('mentor.sertifikat.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.sertifikat.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.sertifikat.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                    Sertifikat
+                </a>
+
                 <!-- =========================================================
                      MAHASISWA
                 ========================================================== -->
@@ -621,19 +610,25 @@
 
                 </a>
 
+                {{-- Sertifikat --}}
+                <a
+                    href="{{ route('mahasiswa.sertifikat.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.sertifikat.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.sertifikat.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                    Sertifikat
+
+                </a>
+
                 {{-- Progress --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('mahasiswa.progress.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.progress.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.progress.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Progress
-                    </span>
+                    Progress
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                </a>
 
                 @endif
 

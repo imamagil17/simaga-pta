@@ -2,94 +2,193 @@
 
 namespace App\Services;
 
+use App\Models\HariLibur;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 class WorkScheduleService
 {
     /**
-     * Apakah mode testing absensi sedang aktif?
+     * Jam masuk normal.
      *
-     * Mode ini dikontrol melalui .env:
-     *
-     * ABSENSI_TEST_MODE=true
-     *
-     * Untuk kondisi normal:
-     *
-     * ABSENSI_TEST_MODE=false
+     * Method ini dipertahankan dengan nama jamMasuk()
+     * karena digunakan oleh AbsensiController dan test lama.
      */
-    protected function isTestMode(): bool
-    {
-        return filter_var(
-            env('ABSENSI_TEST_MODE', false),
-            FILTER_VALIDATE_BOOLEAN
+    public function jamMasuk(
+        ?Carbon $tanggal = null
+    ): string {
+        return Setting::getValue(
+            'jam_masuk',
+            '08:00'
         );
     }
 
     /**
-     * Jam pulang testing.
+     * Alias untuk mendapatkan jam masuk normal.
      */
-    protected function testJamPulang(): ?string
+    public function jamMasukNormal(): string
     {
-        return env('ABSENSI_TEST_JAM_PULANG');
+        return $this->jamMasuk();
     }
 
     /**
-     * Jam masuk normal.
-     */
-    public function jamMasuk(Carbon $date): string
-    {
-        return '08:00';
-    }
-
-    /**
-     * Jam pulang normal berdasarkan hari.
+     * Jam pulang berdasarkan tanggal.
      *
-     * Senin-Kamis = 16:30
-     * Jumat       = 16:50
-     * Sabtu-Minggu = tidak tersedia
+     * Senin-Kamis:
+     * 16:30
+     *
+     * Jumat:
+     * 16:50
+     *
+     * Hari libur:
+     * null
      */
-    public function jamPulang(Carbon $date): ?string
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Mode Testing
-        |--------------------------------------------------------------------------
-        |
-        | Saat ABSENSI_TEST_MODE=true, semua hari dianggap dapat digunakan
-        | untuk testing dan jam pulang mengikuti ABSENSI_TEST_JAM_PULANG.
-        |
-        */
-        if ($this->isTestMode()) {
-            return $this->testJamPulang();
+    public function jamPulang(
+        Carbon $tanggal
+    ): ?string {
+        if (! $this->isHariKerja($tanggal)) {
+            return null;
         }
 
-        return match ($date->dayOfWeek) {
-            Carbon::MONDAY,
-            Carbon::TUESDAY,
-            Carbon::WEDNESDAY,
-            Carbon::THURSDAY => '16:30',
+        /*
+        |--------------------------------------------------------------------------
+        | Jumat
+        |--------------------------------------------------------------------------
+        */
+        if ($tanggal->dayOfWeek === Carbon::FRIDAY) {
+            return Setting::getValue(
+                'jam_pulang_jumat',
+                '16:50'
+            );
+        }
 
-            Carbon::FRIDAY => '16:50',
-
-            Carbon::SATURDAY,
-            Carbon::SUNDAY => null,
-        };
+        /*
+        |--------------------------------------------------------------------------
+        | Hari kerja selain Jumat
+        |--------------------------------------------------------------------------
+        */
+        return Setting::getValue(
+            'jam_pulang_senin_kamis',
+            '16:30'
+        );
     }
 
     /**
-     * Apakah hari tersebut merupakan hari kerja?
+     * Menentukan apakah tanggal merupakan hari kerja.
+     *
+     * Urutan:
+     *
+     * 1. Cek setting hari dalam minggu.
+     * 2. Jika hari tersebut tidak aktif -> libur.
+     * 3. Jika ada hari libur khusus -> libur.
+     * 4. Selain itu -> hari kerja.
      */
-    public function isHariKerja(Carbon $date): bool
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Mode Testing
-        |--------------------------------------------------------------------------
-        */
-        if ($this->isTestMode()) {
-            return true;
+    public function isHariKerja(
+        Carbon $tanggal
+    ): bool {
+        $map = [
+            Carbon::MONDAY =>
+            'hari_kerja_senin',
+
+            Carbon::TUESDAY =>
+            'hari_kerja_selasa',
+
+            Carbon::WEDNESDAY =>
+            'hari_kerja_rabu',
+
+            Carbon::THURSDAY =>
+            'hari_kerja_kamis',
+
+            Carbon::FRIDAY =>
+            'hari_kerja_jumat',
+
+            Carbon::SATURDAY =>
+            'hari_kerja_sabtu',
+
+            Carbon::SUNDAY =>
+            'hari_kerja_minggu',
+        ];
+
+        $key = $map[$tanggal->dayOfWeek] ?? null;
+
+        if (! $key) {
+            return false;
         }
 
-        return $this->jamPulang($date) !== null;
+        /*
+        |--------------------------------------------------------------------------
+        | Default:
+        | Senin-Jumat masuk
+        | Sabtu-Minggu libur
+        |--------------------------------------------------------------------------
+        */
+        $hariAktif = (bool) (
+            (int) Setting::getValue(
+                $key,
+                in_array(
+                    $tanggal->dayOfWeek,
+                    [
+                        Carbon::MONDAY,
+                        Carbon::TUESDAY,
+                        Carbon::WEDNESDAY,
+                        Carbon::THURSDAY,
+                        Carbon::FRIDAY,
+                    ],
+                    true
+                )
+                    ? '1'
+                    : '0'
+            )
+        );
+
+        if (! $hariAktif) {
+            return false;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek hari libur khusus / tanggal merah
+        |--------------------------------------------------------------------------
+        */
+        $libur = HariLibur::query()
+            ->whereDate(
+                'tanggal',
+                $tanggal->toDateString()
+            )
+            ->where(
+                'aktif',
+                true
+            )
+            ->exists();
+
+        if ($libur) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Mendapatkan alasan hari libur khusus.
+     */
+    public function alasanLibur(
+        Carbon $tanggal
+    ): ?string {
+        $hariLibur = HariLibur::query()
+            ->whereDate(
+                'tanggal',
+                $tanggal->toDateString()
+            )
+            ->where(
+                'aktif',
+                true
+            )
+            ->first();
+
+        if (! $hariLibur) {
+            return null;
+        }
+
+        return $hariLibur->nama;
     }
 }

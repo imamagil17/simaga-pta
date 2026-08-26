@@ -216,7 +216,9 @@ class AbsensiController extends Controller
         if (
             $periode->tanggal_mulai &&
             $now->toDateString() <
-            Carbon::parse($periode->tanggal_mulai)->toDateString()
+            Carbon::parse(
+                $periode->tanggal_mulai
+            )->toDateString()
         ) {
             return back()->withErrors([
                 'absensi' =>
@@ -227,7 +229,9 @@ class AbsensiController extends Controller
         if (
             $periode->tanggal_selesai &&
             $now->toDateString() >
-            Carbon::parse($periode->tanggal_selesai)->toDateString()
+            Carbon::parse(
+                $periode->tanggal_selesai
+            )->toDateString()
         ) {
             return back()->withErrors([
                 'absensi' =>
@@ -237,13 +241,26 @@ class AbsensiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Hanya hari kerja
+        | Cek hari kerja berdasarkan pengaturan Admin
         |--------------------------------------------------------------------------
+        |
+        | WorkScheduleService sekarang membaca:
+        | - Hari kerja mingguan
+        | - Hari libur khusus / tanggal merah
+        |
         */
         if (! $workScheduleService->isHariKerja($now)) {
+
+            $alasanLibur =
+                $workScheduleService->alasanLibur($now);
+
             return back()->withErrors([
                 'absensi' =>
-                'Absensi hanya tersedia pada hari kerja Senin sampai Jumat.',
+                $alasanLibur
+                    ? 'Hari ini merupakan hari libur: ' .
+                    $alasanLibur .
+                    '.'
+                    : 'Hari ini bukan hari kerja.',
             ]);
         }
 
@@ -253,7 +270,10 @@ class AbsensiController extends Controller
         |--------------------------------------------------------------------------
         */
         $existingAbsensi = Absensi::query()
-            ->where('penempatan_id', $penempatan->id)
+            ->where(
+                'penempatan_id',
+                $penempatan->id
+            )
             ->whereDate(
                 'tanggal',
                 $now->toDateString()
@@ -274,13 +294,16 @@ class AbsensiController extends Controller
         | Hitung keterlambatan
         |--------------------------------------------------------------------------
         */
-        $jamMasukNormal = $workScheduleService->jamMasuk($now);
+        $jamMasukNormal =
+            $workScheduleService->jamMasuk($now);
 
-        $jamMasukAktual = $now->format('H:i');
+        $jamMasukAktual =
+            $now->format('H:i');
 
         $menitTerlambat = null;
 
         if ($jamMasukAktual > $jamMasukNormal) {
+
             $jamNormal = Carbon::createFromFormat(
                 'H:i',
                 $jamMasukNormal
@@ -291,29 +314,40 @@ class AbsensiController extends Controller
                 $jamMasukAktual
             );
 
-            $menitTerlambat = $jamNormal->diffInMinutes(
-                $jamAktual
-            );
+            $menitTerlambat =
+                $jamNormal->diffInMinutes(
+                    $jamAktual
+                );
         }
 
         /*
         |--------------------------------------------------------------------------
         | Simpan absensi
         |--------------------------------------------------------------------------
-        |
-        | Tidak perlu DB::transaction untuk satu INSERT.
-        |
         */
         $validated = $request->validated();
 
         Absensi::create([
-            'penempatan_id' => $penempatan->id,
-            'tanggal' => $now->toDateString(),
-            'jam_masuk' => $now->format('H:i'),
-            'status_kehadiran' => 'hadir',
-            'menit_terlambat' => $menitTerlambat,
-            'status_verifikasi' => 'pending',
-            'keterangan' => $validated['keterangan'] ?? null,
+            'penempatan_id' =>
+            $penempatan->id,
+
+            'tanggal' =>
+            $now->toDateString(),
+
+            'jam_masuk' =>
+            $now->format('H:i'),
+
+            'status_kehadiran' =>
+            'hadir',
+
+            'menit_terlambat' =>
+            $menitTerlambat,
+
+            'status_verifikasi' =>
+            'pending',
+
+            'keterangan' =>
+            $validated['keterangan'] ?? null,
         ]);
 
         /*
@@ -322,7 +356,9 @@ class AbsensiController extends Controller
         |--------------------------------------------------------------------------
         */
         return redirect()
-            ->route('mahasiswa.absensi.index')
+            ->route(
+                'mahasiswa.absensi.index'
+            )
             ->with(
                 'success',
                 'Absen masuk berhasil dicatat.'
@@ -387,7 +423,9 @@ class AbsensiController extends Controller
         if (
             $periode->tanggal_mulai &&
             $now->toDateString() <
-            Carbon::parse($periode->tanggal_mulai)->toDateString()
+            Carbon::parse(
+                $periode->tanggal_mulai
+            )->toDateString()
         ) {
             return back()->withErrors([
                 'absensi' =>
@@ -398,7 +436,9 @@ class AbsensiController extends Controller
         if (
             $periode->tanggal_selesai &&
             $now->toDateString() >
-            Carbon::parse($periode->tanggal_selesai)->toDateString()
+            Carbon::parse(
+                $periode->tanggal_selesai
+            )->toDateString()
         ) {
             return back()->withErrors([
                 'absensi' =>
@@ -408,13 +448,21 @@ class AbsensiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan hari kerja
+        | Cek hari kerja berdasarkan pengaturan Admin
         |--------------------------------------------------------------------------
         */
         if (! $workScheduleService->isHariKerja($now)) {
+
+            $alasanLibur =
+                $workScheduleService->alasanLibur($now);
+
             return back()->withErrors([
                 'absensi' =>
-                'Absen pulang hanya tersedia pada hari kerja Senin sampai Jumat.',
+                $alasanLibur
+                    ? 'Hari ini merupakan hari libur: ' .
+                    $alasanLibur .
+                    '.'
+                    : 'Hari ini bukan hari kerja.',
             ]);
         }
 
@@ -424,7 +472,10 @@ class AbsensiController extends Controller
         |--------------------------------------------------------------------------
         */
         $absensi = Absensi::query()
-            ->where('penempatan_id', $penempatan->id)
+            ->where(
+                'penempatan_id',
+                $penempatan->id
+            )
             ->whereDate(
                 'tanggal',
                 $now->toDateString()
@@ -455,7 +506,8 @@ class AbsensiController extends Controller
         | Jam pulang normal
         |--------------------------------------------------------------------------
         */
-        $jamPulangNormal = $workScheduleService->jamPulang($now);
+        $jamPulangNormal =
+            $workScheduleService->jamPulang($now);
 
         if ($jamPulangNormal === null) {
             return back()->withErrors([
@@ -469,9 +521,13 @@ class AbsensiController extends Controller
         | Belum waktunya pulang
         |--------------------------------------------------------------------------
         */
-        $jamPulangSekarang = $now->format('H:i');
+        $jamPulangSekarang =
+            $now->format('H:i');
 
-        if ($jamPulangSekarang < $jamPulangNormal) {
+        if (
+            $jamPulangSekarang <
+            $jamPulangNormal
+        ) {
             return back()->withErrors([
                 'absensi' =>
                 "Absen pulang belum tersedia. Jam pulang hari ini mulai pukul {$jamPulangNormal}.",
@@ -486,23 +542,35 @@ class AbsensiController extends Controller
         $parafPath = null;
 
         try {
-            $validated = $request->validated();
 
-            $parafPath = $signatureService->store(
-                $validated['paraf_mahasiswa'],
-                'absensi/paraf/mahasiswa'
-            );
+            $validated =
+                $request->validated();
+
+            $parafPath =
+                $signatureService->store(
+                    $validated['paraf_mahasiswa'],
+                    'absensi/paraf/mahasiswa'
+                );
 
             $absensi->update([
-                'jam_pulang' => $now->format('H:i'),
-                'paraf_mahasiswa' => $parafPath,
-                'paraf_mahasiswa_at' => $now,
-                'status_verifikasi' => 'pending',
+                'jam_pulang' =>
+                $now->format('H:i'),
+
+                'paraf_mahasiswa' =>
+                $parafPath,
+
+                'paraf_mahasiswa_at' =>
+                $now,
+
+                'status_verifikasi' =>
+                'pending',
             ]);
         } catch (\Throwable $exception) {
 
             if ($parafPath) {
-                $signatureService->delete($parafPath);
+                $signatureService->delete(
+                    $parafPath
+                );
             }
 
             report($exception);
@@ -516,7 +584,9 @@ class AbsensiController extends Controller
         }
 
         return redirect()
-            ->route('mahasiswa.absensi.index')
+            ->route(
+                'mahasiswa.absensi.index'
+            )
             ->with(
                 'success',
                 'Absen pulang berhasil dicatat dan dikirim untuk verifikasi mentor.'

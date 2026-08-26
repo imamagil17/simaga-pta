@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Mahasiswa\StoreLogbookRequest;
 use App\Models\Logbook;
 use App\Models\Penempatan;
+use App\Services\WorkScheduleService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -47,20 +48,41 @@ class LogbookController extends Controller
 
     /**
      * Validasi apakah tanggal logbook masih diperbolehkan.
+     *
+     * Aturan:
+     * - Mengikuti pengaturan hari kerja Admin.
+     * - Mengecek hari libur khusus.
+     * - Harus berada dalam periode magang.
+     * - Tidak boleh membuat logbook untuk tanggal masa depan.
      */
     protected function validateLogbookDate(
         Penempatan $penempatan,
-        Carbon $tanggal
+        Carbon $tanggal,
+        WorkScheduleService $workScheduleService
     ): ?string {
         /*
         |--------------------------------------------------------------------------
-        | Hanya Senin - Jumat
+        | Cek hari kerja berdasarkan pengaturan Admin
         |--------------------------------------------------------------------------
         */
-        if (! $tanggal->isWeekday()) {
-            return 'Logbook hanya dapat dibuat pada hari kerja, yaitu Senin sampai Jumat.';
+        if (! $workScheduleService->isHariKerja($tanggal)) {
+            $alasanLibur = $workScheduleService
+                ->alasanLibur($tanggal);
+
+            if ($alasanLibur) {
+                return 'Hari ini merupakan hari libur: '
+                    . $alasanLibur
+                    . '.';
+            }
+
+            return 'Logbook hanya dapat dibuat pada hari kerja.';
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Periode magang
+        |--------------------------------------------------------------------------
+        */
         $periode = $penempatan->periodeMagang;
 
         $tanggalMulai = Carbon::parse(
@@ -73,7 +95,7 @@ class LogbookController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Sebelum periode
+        | Sebelum periode dimulai
         |--------------------------------------------------------------------------
         */
         if ($tanggal->lt($tanggalMulai)) {
@@ -82,7 +104,7 @@ class LogbookController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Setelah periode
+        | Setelah periode berakhir
         |--------------------------------------------------------------------------
         */
         if ($tanggal->gt($tanggalSelesai)) {
@@ -91,7 +113,7 @@ class LogbookController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Tidak boleh tanggal masa depan
+        | Tidak boleh membuat logbook masa depan
         |--------------------------------------------------------------------------
         */
         if ($tanggal->gt(Carbon::today())) {
@@ -118,44 +140,96 @@ class LogbookController extends Controller
 
         $alasanTidakBisaMembuat = null;
 
-        if ($penempatan) {
-            $hariKerja = $today->isWeekday();
+        $workScheduleService = app(
+            WorkScheduleService::class
+        );
 
-            $alasanTidakBisaMembuat = $this->validateLogbookDate(
-                $penempatan,
-                $today
-            );
+        if ($penempatan) {
+            /*
+            |--------------------------------------------------------------------------
+            | Cek hari kerja berdasarkan pengaturan Admin
+            |--------------------------------------------------------------------------
+            */
+            $hariKerja =
+                $workScheduleService->isHariKerja(
+                    $today
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validasi tanggal hari ini
+            |--------------------------------------------------------------------------
+            */
+            $alasanTidakBisaMembuat =
+                $this->validateLogbookDate(
+                    $penempatan,
+                    $today,
+                    $workScheduleService
+                );
 
             $periodeBerjalan =
                 $alasanTidakBisaMembuat === null;
 
+            /*
+            |--------------------------------------------------------------------------
+            | Cari logbook hari ini
+            |--------------------------------------------------------------------------
+            */
             $logbookHariIni = Logbook::query()
-                ->where('penempatan_id', $penempatan->id)
-                ->whereDate('tanggal', $today)
+                ->where(
+                    'penempatan_id',
+                    $penempatan->id
+                )
+                ->whereDate(
+                    'tanggal',
+                    $today
+                )
                 ->first();
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Semua logbook mahasiswa
+        |--------------------------------------------------------------------------
+        */
         $logbooks = $penempatan
             ? Logbook::query()
-            ->where('penempatan_id', $penempatan->id)
+            ->where(
+                'penempatan_id',
+                $penempatan->id
+            )
             ->orderByDesc('tanggal')
             ->get()
             : collect();
 
-        return view('mahasiswa.logbook.index', [
-            'penempatan' => $penempatan,
-            'logbookHariIni' => $logbookHariIni,
-            'logbooks' => $logbooks,
-            'hariKerja' => $hariKerja,
-            'periodeBerjalan' => $periodeBerjalan,
-            'alasanTidakBisaMembuat' => $alasanTidakBisaMembuat,
-        ]);
+        return view(
+            'mahasiswa.logbook.index',
+            [
+                'penempatan' =>
+                $penempatan,
+
+                'logbookHariIni' =>
+                $logbookHariIni,
+
+                'logbooks' =>
+                $logbooks,
+
+                'hariKerja' =>
+                $hariKerja,
+
+                'periodeBerjalan' =>
+                $periodeBerjalan,
+
+                'alasanTidakBisaMembuat' =>
+                $alasanTidakBisaMembuat,
+            ]
+        );
     }
 
     /**
      * Form membuat logbook.
      */
-    public function create(): View|RedirectResponse
+    public function create(): View
     {
         $penempatan = $this->getPenempatan();
 
@@ -168,37 +242,66 @@ class LogbookController extends Controller
 
         $today = Carbon::today();
 
+        $workScheduleService = app(
+            WorkScheduleService::class
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validasi hari kerja, hari libur, periode,
+        | dan tanggal masa depan
+        |--------------------------------------------------------------------------
+        */
         $error = $this->validateLogbookDate(
             $penempatan,
-            $today
+            $today,
+            $workScheduleService
         );
 
         if ($error) {
-            abort(403, $error);
+            abort(
+                403,
+                $error
+            );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan hanya satu logbook per hari.
+        | Satu logbook per hari
         |--------------------------------------------------------------------------
         */
         $existing = Logbook::query()
-            ->where('penempatan_id', $penempatan->id)
-            ->whereDate('tanggal', $today)
+            ->where(
+                'penempatan_id',
+                $penempatan->id
+            )
+            ->whereDate(
+                'tanggal',
+                $today
+            )
             ->first();
 
         if ($existing) {
             return redirect()
-                ->route('mahasiswa.logbook.index')
+                ->route(
+                    'mahasiswa.logbook.index'
+                )
                 ->withErrors([
-                    'logbook' => 'Logbook untuk hari ini sudah dibuat.',
+                    'logbook' =>
+                    'Logbook untuk hari ini sudah dibuat.',
                 ]);
         }
 
-        return view('mahasiswa.logbook.create', [
-            'penempatan' => $penempatan,
-            'tanggal' => $today,
-        ]);
+        return view(
+            'mahasiswa.logbook.create',
+            [
+                'penempatan' =>
+                $penempatan,
+
+                'tanggal' =>
+                $today,
+            ]
+        );
     }
 
     /**
@@ -206,8 +309,9 @@ class LogbookController extends Controller
      *
      * Hanya draft dan revision yang boleh diedit.
      */
-    public function edit(Logbook $logbook): View|RedirectResponse
-    {
+    public function edit(
+        Logbook $logbook
+    ): View|RedirectResponse {
         $penempatan = $this->getPenempatan();
 
         /*
@@ -217,27 +321,35 @@ class LogbookController extends Controller
         */
         if (
             ! $penempatan ||
-            $logbook->penempatan_id !== $penempatan->id
+            $logbook->penempatan_id !==
+            $penempatan->id
         ) {
             abort(403);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Hanya draft dan revision.
+        | Hanya draft dan revision yang boleh diedit.
         |--------------------------------------------------------------------------
         */
         if (
             ! in_array(
                 $logbook->status,
-                ['draft', 'revision'],
+                [
+                    'draft',
+                    'revision',
+                ],
                 true
             )
         ) {
             return redirect()
-                ->route('mahasiswa.logbook.index')
+                ->route(
+                    'mahasiswa.logbook.index'
+                )
                 ->withErrors([
-                    'logbook' => match ($logbook->status) {
+                    'logbook' =>
+                    match ($logbook->status) {
+
                         'submitted' =>
                         'Logbook yang sudah dikirim ke mentor tidak dapat diedit.',
 
@@ -252,7 +364,7 @@ class LogbookController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan relasi tersedia untuk view.
+        | Pastikan relasi tersedia untuk view
         |--------------------------------------------------------------------------
         */
         $logbook->load([
@@ -261,10 +373,16 @@ class LogbookController extends Controller
             'penempatan.periodeMagang',
         ]);
 
-        return view('mahasiswa.logbook.edit', [
-            'penempatan' => $penempatan,
-            'logbook' => $logbook,
-        ]);
+        return view(
+            'mahasiswa.logbook.edit',
+            [
+                'penempatan' =>
+                $penempatan,
+
+                'logbook' =>
+                $logbook,
+            ]
+        );
     }
 
     /**
@@ -276,28 +394,36 @@ class LogbookController extends Controller
         $penempatan = $this->getPenempatan();
 
         if (! $penempatan) {
-            return back()->withErrors([
-                'logbook' =>
-                'Anda belum memiliki penempatan magang yang aktif.',
-            ]);
+            return back()
+                ->withErrors([
+                    'logbook' =>
+                    'Anda belum memiliki penempatan magang yang aktif.',
+                ]);
         }
 
         $today = Carbon::today();
+
+        $workScheduleService = app(
+            WorkScheduleService::class
+        );
 
         /*
         |--------------------------------------------------------------------------
         | Validasi tanggal
         |--------------------------------------------------------------------------
         */
-        $dateError = $this->validateLogbookDate(
-            $penempatan,
-            $today
-        );
+        $dateError =
+            $this->validateLogbookDate(
+                $penempatan,
+                $today,
+                $workScheduleService
+            );
 
         if ($dateError) {
             return back()
                 ->withErrors([
-                    'logbook' => $dateError,
+                    'logbook' =>
+                    $dateError,
                 ])
                 ->withInput();
         }
@@ -308,13 +434,21 @@ class LogbookController extends Controller
         |--------------------------------------------------------------------------
         */
         $existing = Logbook::query()
-            ->where('penempatan_id', $penempatan->id)
-            ->whereDate('tanggal', $today)
+            ->where(
+                'penempatan_id',
+                $penempatan->id
+            )
+            ->whereDate(
+                'tanggal',
+                $today
+            )
             ->first();
 
         if ($existing) {
             return redirect()
-                ->route('mahasiswa.logbook.index')
+                ->route(
+                    'mahasiswa.logbook.index'
+                )
                 ->withErrors([
                     'logbook' =>
                     'Logbook untuk hari ini sudah dibuat.',
@@ -323,7 +457,7 @@ class LogbookController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Upload bukti
+        | Upload bukti kegiatan
         |--------------------------------------------------------------------------
         */
         $path = null;
@@ -337,6 +471,11 @@ class LogbookController extends Controller
                 );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan database
+        |--------------------------------------------------------------------------
+        */
         DB::transaction(
             function () use (
                 $request,
@@ -345,8 +484,11 @@ class LogbookController extends Controller
                 $path
             ): void {
                 Logbook::create([
-                    'penempatan_id' => $penempatan->id,
-                    'tanggal' => $today->toDateString(),
+                    'penempatan_id' =>
+                    $penempatan->id,
+
+                    'tanggal' =>
+                    $today->toDateString(),
 
                     'judul_kegiatan' =>
                     $request->validated(
@@ -373,15 +515,19 @@ class LogbookController extends Controller
                         'rencana_tindak_lanjut'
                     ),
 
-                    'bukti_kegiatan' => $path,
+                    'bukti_kegiatan' =>
+                    $path,
 
-                    'status' => 'draft',
+                    'status' =>
+                    'draft',
                 ]);
             }
         );
 
         return redirect()
-            ->route('mahasiswa.logbook.index')
+            ->route(
+                'mahasiswa.logbook.index'
+            )
             ->with(
                 'success',
                 'Logbook berhasil disimpan sebagai draft.'
@@ -404,7 +550,8 @@ class LogbookController extends Controller
         */
         if (
             ! $penempatan ||
-            $logbook->penempatan_id !== $penempatan->id
+            $logbook->penempatan_id !==
+            $penempatan->id
         ) {
             abort(403);
         }
@@ -417,27 +564,36 @@ class LogbookController extends Controller
         if (
             ! in_array(
                 $logbook->status,
-                ['draft', 'revision'],
+                [
+                    'draft',
+                    'revision',
+                ],
                 true
             )
         ) {
             return redirect()
-                ->route('mahasiswa.logbook.index')
+                ->route(
+                    'mahasiswa.logbook.index'
+                )
                 ->withErrors([
                     'logbook' =>
                     'Logbook yang sudah dikirim atau disetujui tidak dapat diedit.',
                 ]);
         }
 
-        $path = $logbook->bukti_kegiatan;
+        $path =
+            $logbook->bukti_kegiatan;
 
         /*
         |--------------------------------------------------------------------------
-        | Jika upload bukti baru
+        | Upload bukti baru
         |--------------------------------------------------------------------------
         */
-        if ($request->hasFile('bukti_kegiatan')) {
-
+        if (
+            $request->hasFile(
+                'bukti_kegiatan'
+            )
+        ) {
             if ($path) {
                 Storage::disk('public')
                     ->delete($path);
@@ -451,6 +607,11 @@ class LogbookController extends Controller
                 );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Update
+        |--------------------------------------------------------------------------
+        */
         $logbook->update([
             'judul_kegiatan' =>
             $request->validated(
@@ -477,11 +638,14 @@ class LogbookController extends Controller
                 'rencana_tindak_lanjut'
             ),
 
-            'bukti_kegiatan' => $path,
+            'bukti_kegiatan' =>
+            $path,
         ]);
 
         return redirect()
-            ->route('mahasiswa.logbook.index')
+            ->route(
+                'mahasiswa.logbook.index'
+            )
             ->with(
                 'success',
                 'Logbook berhasil diperbarui.'
@@ -491,8 +655,9 @@ class LogbookController extends Controller
     /**
      * Mengirim logbook ke mentor.
      */
-    public function submit(Logbook $logbook): RedirectResponse
-    {
+    public function submit(
+        Logbook $logbook
+    ): RedirectResponse {
         $penempatan = $this->getPenempatan();
 
         /*
@@ -502,7 +667,8 @@ class LogbookController extends Controller
         */
         if (
             ! $penempatan ||
-            $logbook->penempatan_id !== $penempatan->id
+            $logbook->penempatan_id !==
+            $penempatan->id
         ) {
             abort(403);
         }
@@ -515,23 +681,37 @@ class LogbookController extends Controller
         if (
             ! in_array(
                 $logbook->status,
-                ['draft', 'revision'],
+                [
+                    'draft',
+                    'revision',
+                ],
                 true
             )
         ) {
-            return back()->withErrors([
-                'logbook' =>
-                'Logbook ini tidak dapat dikirim kembali.',
-            ]);
+            return back()
+                ->withErrors([
+                    'logbook' =>
+                    'Logbook ini tidak dapat dikirim kembali.',
+                ]);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Submit
+        |--------------------------------------------------------------------------
+        */
         $logbook->update([
-            'status' => 'submitted',
-            'submitted_at' => now(),
+            'status' =>
+            'submitted',
+
+            'submitted_at' =>
+            now(),
         ]);
 
         return redirect()
-            ->route('mahasiswa.logbook.index')
+            ->route(
+                'mahasiswa.logbook.index'
+            )
             ->with(
                 'success',
                 'Logbook berhasil dikirim dan menunggu pemeriksaan mentor.'

@@ -108,4 +108,9 @@ class Penempatan extends Model
     {
         return $this->hasOne(Penilaian::class);
     }
+
+    public function sertifikat()
+    {
+        return $this->hasOne(Sertifikat::class);
+    }
 }

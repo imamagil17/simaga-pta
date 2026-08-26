@@ -8,9 +8,12 @@ use App\Http\Controllers\Admin\DokumenController as AdminDokumenController;
 use App\Http\Controllers\Mahasiswa\DokumenController as MahasiswaDokumenController;
 use App\Http\Controllers\Mentor\DokumenController as MentorDokumenController;
 use App\Http\Controllers\Admin\MahasiswaController;
+use App\Http\Controllers\Mahasiswa\ProgressController as MahasiswaProgressController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Mahasiswa\LogbookController as MahasiswaLogbookController;
 use App\Http\Controllers\Mentor\LogbookController as MentorLogbookController;
+use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Mentor\MahasiswaBimbinganController;
 use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
@@ -25,6 +28,10 @@ use App\Http\Controllers\Mentor\TugasReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\SertifikatController as AdminSertifikatController;
+use App\Http\Controllers\Mahasiswa\SertifikatController as MahasiswaSertifikatController;
+use App\Http\Controllers\Mentor\SertifikatController as MentorSertifikatController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -302,6 +309,42 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::get('/penilaian/{penilaian}', [AdminPenilaianController::class, 'show'])
             ->name('penilaian.show');
+
+        /*Sertifikat*/
+        Route::get('/sertifikat', [AdminSertifikatController::class, 'index'])
+            ->name('sertifikat.index');
+
+        Route::get('/sertifikat/{sertifikat}', [AdminSertifikatController::class, 'show'])
+            ->name('sertifikat.show');
+
+        Route::post('/sertifikat/{sertifikat}/approve', [AdminSertifikatController::class, 'approve'])
+            ->name('sertifikat.approve');
+
+        Route::post('/sertifikat/{sertifikat}/reject', [AdminSertifikatController::class, 'reject'])
+            ->name('sertifikat.reject');
+
+        /*laporan*/
+        Route::get('/laporan', [AdminLaporanController::class, 'index'])
+            ->name('laporan.index');
+
+        Route::get('/laporan/{penempatan}/pdf', [AdminLaporanController::class, 'pdf'])
+            ->name('laporan.pdf');
+            
+        Route::get('/laporan/{penempatan}', [AdminLaporanController::class, 'show'])
+            ->name('laporan.show');
+
+        /*Setting*/
+        Route::get('/settings', [AdminSettingController::class, 'index'])
+            ->name('settings.index');
+
+        Route::put('/settings', [AdminSettingController::class, 'update'])
+            ->name('settings.update');
+
+        Route::post('/settings/hari-libur', [AdminSettingController::class, 'storeHariLibur'])
+            ->name('settings.hari-libur.store');
+
+        Route::delete('/settings/hari-libur/{hariLibur}', [AdminSettingController::class, 'destroyHariLibur'])
+            ->name('settings.hari-libur.destroy');
     });
 
 /*
@@ -437,7 +480,21 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
 
         Route::post('/penilaian/{mahasiswa}/finalize', [MentorPenilaianController::class, 'finalize'])
             ->name('penilaian.finalize');
-        
+
+        Route::get('/sertifikat', [MentorSertifikatController::class, 'index'])
+            ->name('sertifikat.index');
+
+        Route::get('/sertifikat/{mahasiswa}', [MentorSertifikatController::class, 'show'])
+            ->name('sertifikat.show');
+
+        Route::post('/sertifikat/{mahasiswa}', [MentorSertifikatController::class, 'store'])
+            ->name('sertifikat.store');
+
+        Route::get('/mahasiswa-bimbingan', [MahasiswaBimbinganController::class, 'index'])
+            ->name('mahasiswa-bimbingan.index');
+
+        Route::get('/mahasiswa-bimbingan/{mahasiswa}', [MahasiswaBimbinganController::class, 'show'])
+            ->name('mahasiswa-bimbingan.show');
     });
 
 /*
@@ -536,12 +593,26 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
         Route::delete('/dokumen/{dokumen}', [MahasiswaDokumenController::class, 'destroy'])
             ->name('dokumen.destroy');
 
-        
+        /*Penilaian*/
         Route::get('/penilaian', [MahasiswaPenilaianController::class, 'index'])
             ->name('penilaian.index');
 
         Route::get('/penilaian/detail', [MahasiswaPenilaianController::class, 'show'])
             ->name('penilaian.show');
+
+        /*Sertifikat*/
+        Route::get('/sertifikat', [MahasiswaSertifikatController::class, 'index'])
+            ->name('sertifikat.index');
+
+        Route::get('/sertifikat/detail', [MahasiswaSertifikatController::class, 'show'])
+            ->name('sertifikat.show');
+
+        Route::get('/sertifikat/download', [MahasiswaSertifikatController::class, 'download'])
+            ->name('sertifikat.download');
+
+        /*Progress*/
+        Route::get('/progress', [MahasiswaProgressController::class, 'index'])
+            ->name('progress.index');
     });
 
 /*

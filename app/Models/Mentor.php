@@ -65,4 +65,9 @@ class Mentor extends Model
     {
         return $this->hasMany(Penilaian::class);
     }
+
+    public function sertifikat()
+    {
+        return $this->hasMany(Sertifikat::class);
+    }
 }
