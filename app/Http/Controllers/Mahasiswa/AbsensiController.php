@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -24,11 +23,12 @@ class AbsensiController extends Controller
     {
         $user = Auth::user();
 
-        $penempatan = Penempatan::with([
-            'mahasiswa.user',
-            'mentor.user',
-            'periodeMagang',
-        ])
+        $penempatan = Penempatan::query()
+            ->with([
+                'mahasiswa.user',
+                'mentor.user',
+                'periodeMagang',
+            ])
             ->whereHas('mahasiswa', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -100,7 +100,10 @@ class AbsensiController extends Controller
 
         $absensis = Absensi::query()
             ->whereHas('penempatan', function ($query) use ($penempatan) {
-                $query->where('mahasiswa_id', $penempatan->mahasiswa_id);
+                $query->where(
+                    'mahasiswa_id',
+                    $penempatan->mahasiswa_id
+                );
             })
             ->with([
                 'penempatan.periodeMagang',
@@ -129,23 +132,15 @@ class AbsensiController extends Controller
                 ->where('status_kehadiran', 'alpa')
                 ->count(),
 
-            /*
-        |--------------------------------------------------------------------------
-        | Keterlambatan
-        |--------------------------------------------------------------------------
-        |
-        | Hanya absensi dengan menit_terlambat yang dihitung.
-        | Kalau NULL berarti tidak terlambat.
-        |
-        */
             'terlambat' => $absensis
                 ->whereNotNull('menit_terlambat')
                 ->count(),
 
-            'total_menit_terlambat' => $absensis
-                ->sum(function (Absensi $absensi) {
+            'total_menit_terlambat' => $absensis->sum(
+                function (Absensi $absensi) {
                     return $absensi->menit_terlambat ?? 0;
-                }),
+                }
+            ),
 
             'approved' => $absensis
                 ->where('status_verifikasi', 'approved')
@@ -166,11 +161,13 @@ class AbsensiController extends Controller
             'rekap' => $rekap,
         ]);
     }
+
     /**
      * Menyimpan absen masuk mahasiswa.
      */
     public function storeMasuk(
-        StoreAbsensiMasukRequest $request
+        StoreAbsensiMasukRequest $request,
+        WorkScheduleService $workScheduleService
     ): RedirectResponse {
         $user = Auth::user();
 
@@ -179,10 +176,11 @@ class AbsensiController extends Controller
         | Ambil penempatan aktif mahasiswa
         |--------------------------------------------------------------------------
         */
-        $penempatan = Penempatan::with([
-            'mahasiswa.user',
-            'periodeMagang',
-        ])
+        $penempatan = Penempatan::query()
+            ->with([
+                'mahasiswa.user',
+                'periodeMagang',
+            ])
             ->whereHas('mahasiswa', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -201,7 +199,8 @@ class AbsensiController extends Controller
 
         if (! $penempatan) {
             return back()->withErrors([
-                'absensi' => 'Anda belum memiliki penempatan magang yang aktif.',
+                'absensi' =>
+                'Anda belum memiliki penempatan magang yang aktif.',
             ]);
         }
 
@@ -209,67 +208,70 @@ class AbsensiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan tanggal masih berada dalam periode magang
+        | Pastikan periode magang masih berlaku
         |--------------------------------------------------------------------------
         */
         $periode = $penempatan->periodeMagang;
 
         if (
             $periode->tanggal_mulai &&
-            $now->toDateString() < Carbon::parse(
-                $periode->tanggal_mulai
-            )->toDateString()
+            $now->toDateString() <
+            Carbon::parse($periode->tanggal_mulai)->toDateString()
         ) {
             return back()->withErrors([
-                'absensi' => 'Periode magang Anda belum dimulai.',
+                'absensi' =>
+                'Periode magang Anda belum dimulai.',
             ]);
         }
 
         if (
             $periode->tanggal_selesai &&
-            $now->toDateString() > Carbon::parse(
-                $periode->tanggal_selesai
-            )->toDateString()
+            $now->toDateString() >
+            Carbon::parse($periode->tanggal_selesai)->toDateString()
         ) {
             return back()->withErrors([
-                'absensi' => 'Periode magang Anda sudah berakhir.',
+                'absensi' =>
+                'Periode magang Anda sudah berakhir.',
             ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan hari kerja
+        | Hanya hari kerja
         |--------------------------------------------------------------------------
         */
-        $workScheduleService = app(WorkScheduleService::class);
-
         if (! $workScheduleService->isHariKerja($now)) {
             return back()->withErrors([
-                'absensi' => 'Absensi hanya tersedia pada hari kerja Senin sampai Jumat.',
+                'absensi' =>
+                'Absensi hanya tersedia pada hari kerja Senin sampai Jumat.',
             ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Cek absensi hari ini
+        | Tidak boleh absen masuk dua kali pada hari yang sama
         |--------------------------------------------------------------------------
         */
         $existingAbsensi = Absensi::query()
             ->where('penempatan_id', $penempatan->id)
-            ->whereDate('tanggal', $now->toDateString())
+            ->whereDate(
+                'tanggal',
+                $now->toDateString()
+            )
             ->first();
 
         if ($existingAbsensi) {
             return back()
                 ->withErrors([
-                    'absensi' => 'Anda sudah melakukan absen masuk hari ini.',
+                    'absensi' =>
+                    'Anda sudah melakukan absen masuk hari ini.',
                 ])
                 ->withInput();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Jam masuk normal
+        | Hitung keterlambatan
         |--------------------------------------------------------------------------
         */
         $jamMasukNormal = $workScheduleService->jamMasuk($now);
@@ -298,39 +300,40 @@ class AbsensiController extends Controller
         |--------------------------------------------------------------------------
         | Simpan absensi
         |--------------------------------------------------------------------------
+        |
+        | Tidak perlu DB::transaction untuk satu INSERT.
+        |
         */
-        DB::transaction(function () use (
-            $penempatan,
-            $now,
-            $menitTerlambat,
-            $request
-        ): void {
-            Absensi::create([
-                'penempatan_id' => $penempatan->id,
-                'tanggal' => $now->toDateString(),
-                'jam_masuk' => $now->format('H:i'),
-                'status_kehadiran' => 'hadir',
-                'menit_terlambat' => $menitTerlambat,
-                'status_verifikasi' => 'pending',
-                'keterangan' => $request->validated()['keterangan'] ?? null,
-            ]);
-        });
+        $validated = $request->validated();
 
+        Absensi::create([
+            'penempatan_id' => $penempatan->id,
+            'tanggal' => $now->toDateString(),
+            'jam_masuk' => $now->format('H:i'),
+            'status_kehadiran' => 'hadir',
+            'menit_terlambat' => $menitTerlambat,
+            'status_verifikasi' => 'pending',
+            'keterangan' => $validated['keterangan'] ?? null,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect sukses
+        |--------------------------------------------------------------------------
+        */
         return redirect()
             ->route('mahasiswa.absensi.index')
             ->with(
                 'success',
-                $menitTerlambat !== null
-                    ? "Absen masuk berhasil. Anda terlambat {$menitTerlambat} menit."
-                    : 'Absen masuk berhasil dicatat.'
+                'Absen masuk berhasil dicatat.'
             );
     }
 
     /**
      * Menyimpan absen pulang mahasiswa.
      *
-     * Absen pulang hanya meng-update record absensi yang dibuat
-     * saat mahasiswa melakukan absen masuk.
+     * Absen pulang hanya meng-update record
+     * absensi yang dibuat saat absen masuk.
      */
     public function storePulang(
         StoreAbsensiPulangRequest $request,
@@ -344,10 +347,11 @@ class AbsensiController extends Controller
         | Ambil penempatan aktif mahasiswa
         |--------------------------------------------------------------------------
         */
-        $penempatan = Penempatan::with([
-            'mahasiswa.user',
-            'periodeMagang',
-        ])
+        $penempatan = Penempatan::query()
+            ->with([
+                'mahasiswa.user',
+                'periodeMagang',
+            ])
             ->whereHas('mahasiswa', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -366,7 +370,8 @@ class AbsensiController extends Controller
 
         if (! $penempatan) {
             return back()->withErrors([
-                'absensi' => 'Anda belum memiliki penempatan magang yang aktif.',
+                'absensi' =>
+                'Anda belum memiliki penempatan magang yang aktif.',
             ]);
         }
 
@@ -374,30 +379,30 @@ class AbsensiController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan tanggal masih berada dalam periode magang
+        | Validasi periode
         |--------------------------------------------------------------------------
         */
         $periode = $penempatan->periodeMagang;
 
         if (
             $periode->tanggal_mulai &&
-            $now->toDateString() < Carbon::parse(
-                $periode->tanggal_mulai
-            )->toDateString()
+            $now->toDateString() <
+            Carbon::parse($periode->tanggal_mulai)->toDateString()
         ) {
             return back()->withErrors([
-                'absensi' => 'Periode magang Anda belum dimulai.',
+                'absensi' =>
+                'Periode magang Anda belum dimulai.',
             ]);
         }
 
         if (
             $periode->tanggal_selesai &&
-            $now->toDateString() > Carbon::parse(
-                $periode->tanggal_selesai
-            )->toDateString()
+            $now->toDateString() >
+            Carbon::parse($periode->tanggal_selesai)->toDateString()
         ) {
             return back()->withErrors([
-                'absensi' => 'Periode magang Anda sudah berakhir.',
+                'absensi' =>
+                'Periode magang Anda sudah berakhir.',
             ]);
         }
 
@@ -408,7 +413,8 @@ class AbsensiController extends Controller
         */
         if (! $workScheduleService->isHariKerja($now)) {
             return back()->withErrors([
-                'absensi' => 'Absen pulang hanya tersedia pada hari kerja Senin sampai Jumat.',
+                'absensi' =>
+                'Absen pulang hanya tersedia pada hari kerja Senin sampai Jumat.',
             ]);
         }
 
@@ -419,49 +425,56 @@ class AbsensiController extends Controller
         */
         $absensi = Absensi::query()
             ->where('penempatan_id', $penempatan->id)
-            ->whereDate('tanggal', $now->toDateString())
+            ->whereDate(
+                'tanggal',
+                $now->toDateString()
+            )
             ->first();
 
         if (! $absensi) {
             return back()->withErrors([
-                'absensi' => 'Anda belum melakukan absen masuk hari ini.',
+                'absensi' =>
+                'Anda belum melakukan absen masuk hari ini.',
             ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan belum absen pulang
+        | Tidak boleh absen pulang dua kali
         |--------------------------------------------------------------------------
         */
         if ($absensi->jam_pulang !== null) {
             return back()->withErrors([
-                'absensi' => 'Anda sudah melakukan absen pulang hari ini.',
+                'absensi' =>
+                'Anda sudah melakukan absen pulang hari ini.',
             ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Tentukan jam pulang normal
+        | Jam pulang normal
         |--------------------------------------------------------------------------
         */
         $jamPulangNormal = $workScheduleService->jamPulang($now);
 
         if ($jamPulangNormal === null) {
             return back()->withErrors([
-                'absensi' => 'Jam pulang tidak tersedia pada hari ini.',
+                'absensi' =>
+                'Jam pulang tidak tersedia pada hari ini.',
             ]);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Pastikan sudah memasuki jam pulang
+        | Belum waktunya pulang
         |--------------------------------------------------------------------------
         */
         $jamPulangSekarang = $now->format('H:i');
 
         if ($jamPulangSekarang < $jamPulangNormal) {
             return back()->withErrors([
-                'absensi' => "Absen pulang belum tersedia. Jam pulang hari ini mulai pukul {$jamPulangNormal}.",
+                'absensi' =>
+                "Absen pulang belum tersedia. Jam pulang hari ini mulai pukul {$jamPulangNormal}.",
             ]);
         }
 
@@ -473,33 +486,33 @@ class AbsensiController extends Controller
         $parafPath = null;
 
         try {
+            $validated = $request->validated();
+
             $parafPath = $signatureService->store(
-                $request->validated()['paraf_mahasiswa'],
+                $validated['paraf_mahasiswa'],
                 'absensi/paraf/mahasiswa'
             );
 
-            DB::transaction(function () use (
-                $absensi,
-                $now,
-                $parafPath
-            ): void {
-                $absensi->update([
-                    'jam_pulang' => $now->format('H:i'),
-                    'paraf_mahasiswa' => $parafPath,
-                    'paraf_mahasiswa_at' => $now,
-                    'status_verifikasi' => 'pending',
-                ]);
-            });
+            $absensi->update([
+                'jam_pulang' => $now->format('H:i'),
+                'paraf_mahasiswa' => $parafPath,
+                'paraf_mahasiswa_at' => $now,
+                'status_verifikasi' => 'pending',
+            ]);
         } catch (\Throwable $exception) {
+
             if ($parafPath) {
                 $signatureService->delete($parafPath);
             }
 
             report($exception);
 
-            return back()->withErrors([
-                'absensi' => 'Paraf mahasiswa gagal diproses. Silakan coba lagi.',
-            ])->withInput();
+            return back()
+                ->withErrors([
+                    'absensi' =>
+                    'Paraf mahasiswa gagal diproses. Silakan coba lagi.',
+                ])
+                ->withInput();
         }
 
         return redirect()

@@ -265,18 +265,19 @@
                 </div>
 
                 {{-- Dokumen --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.dokumen.index') }}"
+                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.dokumen.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
                     <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
+
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.dokumen.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Dokumen
+
                     </span>
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                </a>
 
                 {{-- Laporan --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
@@ -491,6 +492,42 @@
 
                 </a>
 
+                {{-- Dokumen --}}
+                <a
+                    href="{{ route('mentor.dokumen.index') }}"
+                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.dokumen.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="flex items-center gap-3">
+
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.dokumen.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                        Dokumen
+
+                    </span>
+
+                    @php
+                    $pendingDokumenCount = \App\Models\Dokumen::query()
+                    ->where('status', 'uploaded')
+                    ->whereHas('penempatan', function ($query) {
+                    $query
+                    ->where(
+                    'mentor_id',
+                    auth()->user()->mentor?->id
+                    )
+                    ->where('status', 'active');
+                    })
+                    ->count();
+                    @endphp
+
+                    @if ($pendingDokumenCount > 0)
+
+                    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {{ $pendingDokumenCount }}
+                    </span>
+
+                    @endif
+
+                </a>
+
                 {{-- Penilaian --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
 
@@ -572,18 +609,13 @@
                 </a>
 
                 {{-- Dokumen --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('mahasiswa.dokumen.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.dokumen.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.dokumen.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Dokumen
-                    </span>
-
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                    Dokumen
+                </a>
 
                 {{-- Progress --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">

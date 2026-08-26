@@ -97,4 +97,9 @@ class Penempatan extends Model
     {
         return $this->hasMany(Tugas::class);
     }
+
+    public function dokumen(): HasMany
+    {
+        return $this->hasMany(Dokumen::class);
+    }
 }

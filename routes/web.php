@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\AbsensiController as AdminAbsensiController;
 use App\Http\Controllers\Mahasiswa\AbsensiController as MahasiswaAbsensiController;
 use App\Http\Controllers\Mentor\AbsensiController as MentorAbsensiController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DokumenController as AdminDokumenController;
+use App\Http\Controllers\Mahasiswa\DokumenController as MahasiswaDokumenController;
+use App\Http\Controllers\Mentor\DokumenController as MentorDokumenController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\LogbookController as AdminLogbookController;
 use App\Http\Controllers\Mahasiswa\LogbookController as MahasiswaLogbookController;
@@ -266,6 +269,24 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::get('/tugas/{tugas}', [AdminTugasController::class, 'show'])
             ->name('tugas.show');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Dokumen
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dokumen', [AdminDokumenController::class, 'index'])
+            ->name('dokumen.index');
+
+        Route::get('/dokumen/{dokumen}', [AdminDokumenController::class, 'show'])
+            ->name('dokumen.show');
+
+        Route::get('/dokumen/{dokumen}/preview', [AdminDokumenController::class, 'preview'])
+            ->name('dokumen.preview');
+
+        Route::get('/dokumen/{dokumen}/download', [AdminDokumenController::class, 'download'])
+            ->name('dokumen.download');
     });
 
 /*
@@ -344,7 +365,7 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
         Route::post('/tugas/{tugas}/close', [MentorTugasController::class, 'close'])
             ->name('tugas.close');
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Tugas Review
         |--------------------------------------------------------------------------
@@ -363,6 +384,30 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
             '/tugas/{tugas}/pengumpulan/{pengumpulan}/revision',
             [TugasReviewController::class, 'revision']
         )->name('tugas.revision');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dokumen
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dokumen', [MentorDokumenController::class, 'index'])
+            ->name('dokumen.index');
+
+        Route::get('/dokumen/{dokumen}', [MentorDokumenController::class, 'show'])
+            ->name('dokumen.show');
+
+        Route::get('/dokumen/{dokumen}/preview', [MentorDokumenController::class, 'preview'])
+            ->name('dokumen.preview');
+
+        Route::get('/dokumen/{dokumen}/download', [MentorDokumenController::class, 'download'])
+            ->name('dokumen.download');
+
+        Route::post('/dokumen/{dokumen}/verify', [MentorDokumenController::class, 'verify'])
+            ->name('dokumen.verify');
+
+        Route::post('/dokumen/{dokumen}/revision', [MentorDokumenController::class, 'revision'])
+            ->name('dokumen.revision');
+        
     });
 
 /*
@@ -436,6 +481,30 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
 
         Route::post('/tugas/{tugas}/submit', [MahasiswaTugasController::class, 'submit'])
             ->name('tugas.submit');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dokumen
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dokumen', [MahasiswaDokumenController::class, 'index'])
+            ->name('dokumen.index');
+
+        Route::get('/dokumen/create', [MahasiswaDokumenController::class, 'create'])
+            ->name('dokumen.create');
+
+        Route::post('/dokumen', [MahasiswaDokumenController::class, 'store'])
+            ->name('dokumen.store');
+
+        Route::get('/dokumen/{dokumen}/preview', [MahasiswaDokumenController::class, 'preview'])
+            ->name('dokumen.preview');
+
+        Route::get('/dokumen/{dokumen}/download', [MahasiswaDokumenController::class, 'download'])
+            ->name('dokumen.download');
+
+        Route::delete('/dokumen/{dokumen}', [MahasiswaDokumenController::class, 'destroy'])
+            ->name('dokumen.destroy');
     });
 
 /*

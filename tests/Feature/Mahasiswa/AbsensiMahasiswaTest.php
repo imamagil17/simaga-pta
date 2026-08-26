@@ -3,7 +3,6 @@
 use App\Models\Absensi;
 use App\Models\Mahasiswa;
 use App\Models\Mentor;
-use App\Models\MentorPeriode;
 use App\Models\Penempatan;
 use App\Models\PeriodeMagang;
 use App\Models\User;
@@ -11,6 +10,15 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+/*
+|--------------------------------------------------------------------------
+| Reset Carbon setelah setiap test.
+|--------------------------------------------------------------------------
+*/
+afterEach(function () {
+    Carbon::setTestNow();
+});
 
 function createMahasiswaAbsensiUser(): array
 {
@@ -44,11 +52,20 @@ function createMahasiswaAbsensiUser(): array
         'status' => 'active',
     ]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Gunakan tanggal tetap.
+    |--------------------------------------------------------------------------
+    |
+    | Jangan menggunakan now() di sini karena beberapa test
+    | mengubah Carbon::setTestNow() setelah data dibuat.
+    |
+    */
     $periode = PeriodeMagang::create([
         'nama_periode' => 'Periode Absensi Mahasiswa',
         'kode_periode' => 'AM-' . fake()->unique()->numberBetween(1000, 9999),
-        'tanggal_mulai' => now()->subDay()->toDateString(),
-        'tanggal_selesai' => now()->addMonths(3)->toDateString(),
+        'tanggal_mulai' => '2026-08-01',
+        'tanggal_selesai' => '2026-11-30',
         'status' => 'active',
     ]);
 
@@ -69,6 +86,17 @@ function createMahasiswaAbsensiUser(): array
 }
 
 test('mahasiswa can access absensi page', function () {
+    Carbon::setTestNow(
+        Carbon::create(
+            2026,
+            8,
+            24,
+            8,
+            0,
+            0
+        )
+    );
+
     $data = createMahasiswaAbsensiUser();
 
     $this
@@ -81,8 +109,6 @@ test('mahasiswa can access absensi page', function () {
 });
 
 test('mahasiswa can record absen masuk', function () {
-    $data = createMahasiswaAbsensiUser();
-
     Carbon::setTestNow(
         Carbon::create(
             2026,
@@ -93,6 +119,8 @@ test('mahasiswa can record absen masuk', function () {
             0
         )
     );
+
+    $data = createMahasiswaAbsensiUser();
 
     $response = $this
         ->actingAs($data['user'])
@@ -108,20 +136,35 @@ test('mahasiswa can record absen masuk', function () {
         );
 
     $absensi = Absensi::query()
-        ->where('penempatan_id', $data['penempatan']->id)
+        ->where(
+            'penempatan_id',
+            $data['penempatan']->id
+        )
         ->first();
 
-    expect($absensi)->not->toBeNull();
-    expect($absensi->tanggal->toDateString())->toBe('2026-08-24');
-    expect($absensi->jam_masuk)->toBe('08:00');
-    expect($absensi->status_kehadiran)->toBe('hadir');
-    expect($absensi->menit_terlambat)->toBeNull();
-    expect($absensi->status_verifikasi)->toBe('pending');
+    expect($absensi)
+        ->not
+        ->toBeNull();
+
+    expect(
+        $absensi->tanggal->toDateString()
+    )
+        ->toBe('2026-08-24');
+
+    expect($absensi->jam_masuk)
+        ->toBe('08:00');
+
+    expect($absensi->status_kehadiran)
+        ->toBe('hadir');
+
+    expect($absensi->menit_terlambat)
+        ->toBeNull();
+
+    expect($absensi->status_verifikasi)
+        ->toBe('pending');
 });
 
 test('mahasiswa who arrives late is still marked hadir with lateness minutes', function () {
-    $data = createMahasiswaAbsensiUser();
-
     Carbon::setTestNow(
         Carbon::create(
             2026,
@@ -133,22 +176,33 @@ test('mahasiswa who arrives late is still marked hadir with lateness minutes', f
         )
     );
 
+    $data = createMahasiswaAbsensiUser();
+
     $this
         ->actingAs($data['user'])
-        ->post(route('mahasiswa.absensi.masuk'));
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ]);
 
     $absensi = Absensi::query()
-        ->where('penempatan_id', $data['penempatan']->id)
+        ->where(
+            'penempatan_id',
+            $data['penempatan']->id
+        )
         ->first();
 
-    expect($absensi)->not->toBeNull();
-    expect($absensi->status_kehadiran)->toBe('hadir');
-    expect($absensi->menit_terlambat)->toBe(3);
+    expect($absensi)
+        ->not
+        ->toBeNull();
+
+    expect($absensi->status_kehadiran)
+        ->toBe('hadir');
+
+    expect($absensi->menit_terlambat)
+        ->toBe(3);
 });
 
 test('mahasiswa cannot record absen masuk twice on same day', function () {
-    $data = createMahasiswaAbsensiUser();
-
     Carbon::setTestNow(
         Carbon::create(
             2026,
@@ -160,13 +214,20 @@ test('mahasiswa cannot record absen masuk twice on same day', function () {
         )
     );
 
+    $data = createMahasiswaAbsensiUser();
+
     $this
         ->actingAs($data['user'])
-        ->post(route('mahasiswa.absensi.masuk'));
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ])
+        ->assertRedirect(route('mahasiswa.absensi.index'));
 
     $response = $this
         ->actingAs($data['user'])
-        ->post(route('mahasiswa.absensi.masuk'));
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ]);
 
     $response
         ->assertRedirect()
@@ -181,6 +242,17 @@ test('mahasiswa cannot record absen masuk twice on same day', function () {
 });
 
 test('user without active placement cannot record absen masuk', function () {
+    Carbon::setTestNow(
+        Carbon::create(
+            2026,
+            8,
+            24,
+            8,
+            0,
+            0
+        )
+    );
+
     $user = User::factory()->create([
         'role' => 'mahasiswa',
         'status' => 'active',
@@ -189,7 +261,9 @@ test('user without active placement cannot record absen masuk', function () {
 
     $response = $this
         ->actingAs($user)
-        ->post(route('mahasiswa.absensi.masuk'));
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ]);
 
     $response
         ->assertRedirect()
@@ -209,18 +283,13 @@ test('mentor cannot access mahasiswa absen masuk endpoint', function () {
 
     $this
         ->actingAs($mentor)
-        ->post(route('mahasiswa.absensi.masuk'))
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ])
         ->assertForbidden();
 });
 
 test('mahasiswa cannot record attendance outside active period', function () {
-    $data = createMahasiswaAbsensiUser();
-
-    $data['periode']->update([
-        'tanggal_mulai' => '2027-01-01',
-        'tanggal_selesai' => '2027-02-01',
-    ]);
-
     Carbon::setTestNow(
         Carbon::create(
             2026,
@@ -232,13 +301,24 @@ test('mahasiswa cannot record attendance outside active period', function () {
         )
     );
 
+    $data = createMahasiswaAbsensiUser();
+
+    $data['periode']->update([
+        'tanggal_mulai' => '2027-01-01',
+        'tanggal_selesai' => '2027-02-01',
+    ]);
+
     $response = $this
         ->actingAs($data['user'])
-        ->post(route('mahasiswa.absensi.masuk'));
+        ->post(route('mahasiswa.absensi.masuk'), [
+            'keterangan' => null,
+        ]);
 
     $response
         ->assertRedirect()
         ->assertSessionHasErrors('absensi');
 
-    expect(Absensi::count())->toBe(0);
+    expect(
+        Absensi::count()
+    )->toBe(0);
 });
