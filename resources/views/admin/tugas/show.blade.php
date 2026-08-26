@@ -2,6 +2,22 @@
 
     @php
     \Carbon\Carbon::setLocale('id');
+
+    $submittedCount = $tugas->pengumpulan
+    ->where('status', 'submitted')
+    ->count();
+
+    $reviewedCount = $tugas->pengumpulan
+    ->where('status', 'reviewed')
+    ->count();
+
+    $revisionCount = $tugas->pengumpulan
+    ->where('status', 'revision')
+    ->count();
+
+    $draftCount = $tugas->pengumpulan
+    ->where('status', 'draft')
+    ->count();
     @endphp
 
     <x-slot:title>Detail Tugas - SIMAGA PTA</x-slot:title>
@@ -9,51 +25,13 @@
 
     <div class="mx-auto max-w-5xl space-y-6">
 
-        {{-- =========================================================
-             FLASH SUCCESS
-        ========================================================== --}}
-        @if (session('success'))
-
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/20">
-
-            <p class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                {{ session('success') }}
-            </p>
-
-        </div>
-
-        @endif
-
-        {{-- =========================================================
-             ERRORS
-        ========================================================== --}}
-        @if ($errors->any())
-
-        <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-900/40 dark:bg-rose-900/20">
-
-            <ul class="space-y-1 text-sm text-rose-800 dark:text-rose-300">
-
-                @foreach ($errors->all() as $error)
-
-                <li>
-                    {{ $error }}
-                </li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-        @endif
-
-        {{-- =========================================================
+        {{-- ============================================================
              KEMBALI
-        ========================================================== --}}
+        ============================================================ --}}
         <div>
 
             <a
-                href="{{ route('mentor.tugas.index') }}"
+                href="{{ route('admin.tugas.index') }}"
                 class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 transition hover:text-emerald-700 dark:text-gray-400 dark:hover:text-emerald-400">
 
                 <svg
@@ -68,15 +46,15 @@
                         d="M15 19l-7-7 7-7" />
                 </svg>
 
-                Kembali ke Tugas
+                Kembali ke Monitoring Tugas
 
             </a>
 
         </div>
 
-        {{-- =========================================================
+        {{-- ============================================================
              IDENTITAS
-        ========================================================== --}}
+        ============================================================ --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -89,11 +67,11 @@
                     </p>
 
                     <p class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">
-                        {{ $tugas->penempatan->mahasiswa->user->name }}
+                        {{ $tugas->penempatan->mahasiswa->user->name ?? '-' }}
                     </p>
 
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {{ $tugas->penempatan->mahasiswa->nim }}
+                        {{ $tugas->penempatan->mahasiswa->nim ?? '-' }}
                     </p>
 
                 </div>
@@ -105,8 +83,8 @@
                         Mentor
                     </p>
 
-                    <p class="mt-1 font-bold text-gray-900 dark:text-gray-100">
-                        {{ $tugas->penempatan->mentor->user->name }}
+                    <p class="mt-1 font-semibold text-gray-900 dark:text-gray-100">
+                        {{ $tugas->penempatan->mentor->user->name ?? '-' }}
                     </p>
 
                 </div>
@@ -115,11 +93,11 @@
                 <div>
 
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Periode
+                        Periode Magang
                     </p>
 
-                    <p class="mt-1 font-bold text-gray-900 dark:text-gray-100">
-                        {{ $tugas->penempatan->periodeMagang->nama_periode }}
+                    <p class="mt-1 font-semibold text-gray-900 dark:text-gray-100">
+                        {{ $tugas->penempatan->periodeMagang->nama_periode ?? '-' }}
                     </p>
 
                 </div>
@@ -128,9 +106,9 @@
 
         </div>
 
-        {{-- =========================================================
+        {{-- ============================================================
              DETAIL TUGAS
-        ========================================================== --}}
+        ============================================================ --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -182,7 +160,7 @@
             <div class="mt-6">
 
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Deskripsi
+                    Deskripsi / Instruksi
                 </p>
 
                 <p class="mt-2 whitespace-pre-line text-sm leading-7 text-gray-700 dark:text-gray-300">
@@ -201,7 +179,7 @@
                     </p>
 
                     <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {{ $tugas->tanggal_mulai->translatedFormat('d F Y, H:i') }}
+                        {{ $tugas->tanggal_mulai->translatedFormat('l, d F Y, H:i') }} WITA
                     </p>
 
                 </div>
@@ -213,14 +191,27 @@
                     </p>
 
                     <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {{ $tugas->tanggal_deadline->translatedFormat('d F Y, H:i') }}
+                        {{ $tugas->tanggal_deadline->translatedFormat('l, d F Y, H:i') }} WITA
                     </p>
 
                 </div>
 
             </div>
 
-            {{-- File tugas --}}
+            {{-- Pembuat --}}
+            <div class="mt-6 border-t border-gray-100 pt-6 dark:border-gray-700">
+
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Dibuat Oleh
+                </p>
+
+                <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $tugas->creator->name ?? '-' }}
+                </p>
+
+            </div>
+
+            {{-- File --}}
             @if ($tugas->file_tugas)
 
             <div class="mt-6 border-t border-gray-100 pt-6 dark:border-gray-700">
@@ -257,135 +248,75 @@
 
         </div>
 
-        {{-- =========================================================
-             AKSI MENTOR
-        ========================================================== --}}
+        {{-- ============================================================
+             REKAP PENGUMPULAN
+        ============================================================ --}}
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
 
-        @if ($tugas->status === 'draft')
+            <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Draft
+                </p>
 
-            <div class="flex flex-wrap gap-3">
+                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    {{ $draftCount }}
+                </p>
 
-                {{-- Edit --}}
-                <a
-                    href="{{ route('mentor.tugas.edit', $tugas) }}"
-                    class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+            </div>
 
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15.232 5.232l3.536 3.536M4 20h4l10.5-10.5a2.5 2.5 0 10-3.536-3.536L4.5 16.5 4 20z" />
-                    </svg>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm dark:border-amber-900/40 dark:bg-amber-900/20">
 
-                    Edit Tugas
+                <p class="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                    Menunggu
+                </p>
 
-                </a>
+                <p class="mt-2 text-3xl font-bold text-amber-800 dark:text-amber-300">
+                    {{ $submittedCount }}
+                </p>
 
-                {{-- Publish --}}
-                <form
-                    method="POST"
-                    action="{{ route('mentor.tugas.publish', $tugas) }}">
+            </div>
 
-                    @csrf
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm dark:border-emerald-900/40 dark:bg-emerald-900/20">
 
-                    <button
-                        type="submit"
-                        class="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800">
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                    Dinilai
+                </p>
 
-                        <svg
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
+                <p class="mt-2 text-3xl font-bold text-emerald-800 dark:text-emerald-300">
+                    {{ $reviewedCount }}
+                </p>
 
-                        Publish
+            </div>
 
-                    </button>
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-sm dark:border-rose-900/40 dark:bg-rose-900/20">
 
-                </form>
+                <p class="text-xs font-semibold uppercase tracking-wide text-rose-600 dark:text-rose-400">
+                    Revisi
+                </p>
+
+                <p class="mt-2 text-3xl font-bold text-rose-800 dark:text-rose-300">
+                    {{ $revisionCount }}
+                </p>
 
             </div>
 
         </div>
 
-        @elseif ($tugas->status === 'published')
-
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-
-            <form
-                method="POST"
-                action="{{ route('mentor.tugas.close', $tugas) }}">
-
-                @csrf
-
-                <button
-                    type="submit"
-                    class="inline-flex items-center gap-2 rounded-xl bg-gray-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800">
-
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 6h12v12H6z" />
-                    </svg>
-
-                    Tutup Tugas
-
-                </button>
-
-            </form>
-
-        </div>
-
-        @endif
-
-        {{-- =========================================================
-             PENGUMPULAN TUGAS
-        ========================================================== --}}
+        {{-- ============================================================
+             PENGUMPULAN
+        ============================================================ --}}
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
             <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h3 class="font-bold text-gray-900 dark:text-gray-100">
+                    Riwayat Pengumpulan
+                </h3>
 
-                    <div>
-
-                        <h3 class="font-bold text-gray-900 dark:text-gray-100">
-                            Pengumpulan Tugas
-                        </h3>
-
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Periksa jawaban mahasiswa dan berikan penilaian atau revisi.
-                        </p>
-
-                    </div>
-
-                    <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-
-                        {{ $tugas->pengumpulan->count() }}
-                        Pengumpulan
-
-                    </div>
-
-                </div>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Status pengumpulan mahasiswa pada tugas ini.
+                </p>
 
             </div>
 
@@ -413,10 +344,6 @@
                                 Dikumpulkan
                             </th>
 
-                            <th class="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                Aksi
-                            </th>
-
                         </tr>
 
                     </thead>
@@ -431,11 +358,11 @@
                             <td class="px-5 py-4">
 
                                 <p class="font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $pengumpulan->mahasiswa->user->name }}
+                                    {{ $pengumpulan->mahasiswa->user->name ?? '-' }}
                                 </p>
 
                                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    {{ $pengumpulan->mahasiswa->nim }}
+                                    {{ $pengumpulan->mahasiswa->nim ?? '-' }}
                                 </p>
 
                             </td>
@@ -506,54 +433,10 @@
 
                             </td>
 
-                            {{-- Waktu --}}
+                            {{-- Tanggal --}}
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
 
                                 {{ $pengumpulan->dikumpulkan_at?->translatedFormat('d F Y, H:i') ?? '-' }}
-
-                            </td>
-
-                            {{-- Aksi --}}
-                            <td class="px-5 py-4 text-right">
-
-                                @if ($pengumpulan->status === 'submitted')
-
-                                <a
-                                    href="{{ route('mentor.tugas.review.show', [$tugas, $pengumpulan]) }}"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800">
-
-                                    <svg
-                                        class="h-4 w-4"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-
-                                    Periksa
-
-                                </a>
-
-                                @else
-
-                                <a
-                                    href="{{ route('mentor.tugas.review.show', [$tugas, $pengumpulan]) }}"
-                                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-
-                                    Detail
-
-                                </a>
-
-                                @endif
 
                             </td>
 
@@ -564,7 +447,7 @@
                         <tr>
 
                             <td
-                                colspan="5"
+                                colspan="4"
                                 class="px-6 py-14 text-center">
 
                                 <div class="mx-auto max-w-sm">

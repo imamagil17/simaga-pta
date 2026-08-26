@@ -29,6 +29,7 @@
 <body
     class="h-full antialiased text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900"
     x-data="{ sidebarOpen: false }">
+
     <div class="min-h-screen flex flex-col md:flex-row">
 
         <!-- Mobile Sidebar Backdrop -->
@@ -73,13 +74,21 @@
                 <button
                     @click="sidebarOpen = false"
                     class="md:hidden text-emerald-300 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <svg
+                        class="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
+
                     </svg>
+
                 </button>
 
             </div>
@@ -112,6 +121,9 @@
             <!-- Navigation Links -->
             <nav class="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 scrollbar-thin scrollbar-thumb-emerald-800">
 
+                <!-- =========================================================
+                     ADMINISTRATOR
+                ========================================================== -->
                 @if(Auth::user()->isAdministrator())
 
                 <!-- Administrator Menu -->
@@ -119,15 +131,23 @@
                 <a
                     href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 01-1 1v4a1 1 0 001 1m-6 0h6" />
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 001 1v4a1 1 0 001 1v4a1 1 0 001 1m-6 0h6" />
+
                     </svg>
 
                     Dashboard
+
                 </a>
 
                 <!-- Data Magang -->
@@ -139,32 +159,44 @@
                 <a
                     href="{{ route('admin.mahasiswa.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mahasiswa.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Mahasiswa
+
                 </a>
 
                 {{-- Mentor --}}
                 <a
                     href="{{ route('admin.mentors.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.mentors.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.mentors.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Mentor
+
                 </a>
 
                 {{-- Periode Magang --}}
                 <a
                     href="{{ route('admin.periode-magangs.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.periode-magangs.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Periode Magang
+
                 </a>
 
                 {{-- Penempatan --}}
                 <a
                     href="{{ route('admin.penempatans.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.penempatans.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.penempatans.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Penempatan
+
                 </a>
 
                 <!-- Monitoring -->
@@ -172,37 +204,46 @@
                     Monitoring
                 </div>
 
-                {{-- Absensi - Aktif --}}
+                {{-- Absensi --}}
                 <a
                     href="{{ route('admin.absensi.index') }}"
                     class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.absensi.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="flex items-center gap-3">
+
                         <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.absensi.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                         Absensi
+
                     </span>
+
                 </a>
 
-                {{-- Logbook - Aktif --}}
+                {{-- Logbook --}}
                 <a
                     href="{{ route('admin.logbook.index') }}"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
-                    Logbook
+                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
+                    <span class="flex items-center gap-3">
+
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                        Logbook
+
+                    </span>
+
                 </a>
 
                 {{-- Tugas --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.tugas.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.tugas.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Tugas
-                    </span>
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.tugas.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
+                    Tugas
 
-                </div>
+                </a>
 
                 <!-- Lainnya -->
                 <div class="pt-3 pb-1 px-3 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
@@ -269,8 +310,11 @@
                 <a
                     href="{{ route('admin.users.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.users.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Manajemen Pengguna
+
                 </a>
 
                 {{-- Pengaturan --}}
@@ -287,6 +331,9 @@
 
                 </div>
 
+                <!-- =========================================================
+                     MENTOR
+                ========================================================== -->
                 @elseif(Auth::user()->isMentor())
 
                 <!-- Mentor Menu -->
@@ -294,15 +341,23 @@
                 <a
                     href="{{ route('mentor.dashboard') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.dashboard') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+
                     </svg>
 
                     Dashboard
+
                 </a>
 
                 <div class="pt-3 pb-1 px-3 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
@@ -361,11 +416,14 @@
                 <a
                     href="{{ route('mentor.absensi.rekap') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.absensi.rekap') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.absensi.rekap') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Rekap Absensi
+
                 </a>
 
-                {{-- Logbook - Aktif --}}
+                {{-- Logbook --}}
                 <a
                     href="{{ route('mentor.logbook.index') }}"
                     class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
@@ -399,13 +457,38 @@
 
                 </a>
 
-                {{-- Tugas - Aktif --}}
+                {{-- Tugas --}}
                 <a
                     href="{{ route('mentor.tugas.index') }}"
-                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.tugas.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.tugas.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+                    class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.tugas.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
-                    Tugas
+                    <span class="flex items-center gap-3">
+
+                        <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.tugas.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                        Tugas
+
+                    </span>
+
+                    @php
+                    $pendingTugasCount = \App\Models\PengumpulanTugas::query()
+                    ->where('status', 'submitted')
+                    ->whereHas('tugas.penempatan', function ($query) {
+                    $query
+                    ->where('mentor_id', auth()->user()->mentor?->id)
+                    ->where('status', 'active');
+                    })
+                    ->count();
+                    @endphp
+
+                    @if ($pendingTugasCount > 0)
+
+                    <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {{ $pendingTugasCount }}
+                    </span>
+
+                    @endif
+
                 </a>
 
                 {{-- Penilaian --}}
@@ -422,6 +505,9 @@
 
                 </div>
 
+                <!-- =========================================================
+                     MAHASISWA
+                ========================================================== -->
                 @elseif(Auth::user()->isMahasiswa())
 
                 <!-- Mahasiswa Menu -->
@@ -429,15 +515,23 @@
                 <a
                     href="{{ route('mahasiswa.dashboard') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.dashboard') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1v-4a1 1 0 011 1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 011 1v4a1 1 0 011 1m-6 0h6" />
+
                     </svg>
 
                     Dashboard
+
                 </a>
 
                 <div class="pt-3 pb-1 px-3 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
@@ -448,31 +542,34 @@
                 <a
                     href="{{ route('mahasiswa.absensi.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.absensi.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.absensi.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Absensi
+
                 </a>
 
-                {{-- Logbook - Aktif --}}
+                {{-- Logbook --}}
                 <a
                     href="{{ route('mahasiswa.logbook.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.logbook.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.logbook.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
                     Logbook
+
                 </a>
 
                 {{-- Tugas --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('mahasiswa.tugas.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.tugas.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Tugas
-                    </span>
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.tugas.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
+                    Tugas
 
-                </div>
+                </a>
 
                 {{-- Dokumen --}}
                 <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
@@ -512,15 +609,23 @@
                 <a
                     href="{{ route('profile.edit') }}"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('profile.edit') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7-7 0 00-7-7z" />
+
                     </svg>
 
                     Profil Saya
+
                 </a>
 
             </nav>
@@ -528,22 +633,34 @@
             <!-- Sidebar Footer -->
             <div class="p-4 border-t border-emerald-800/80 bg-emerald-900/40">
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form
+                    method="POST"
+                    action="{{ route('logout') }}">
+
                     @csrf
 
                     <button
                         type="submit"
                         class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold bg-emerald-900 hover:bg-rose-900/80 text-emerald-100 hover:text-white border border-emerald-700 hover:border-rose-700 transition-all duration-200 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+
                         </svg>
 
                         Keluar
+
                     </button>
+
                 </form>
 
             </div>
@@ -563,13 +680,21 @@
                         <button
                             @click="sidebarOpen = true"
                             class="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 6h16M4 12h16M4 18h16" />
+
                             </svg>
+
                         </button>
 
                         <div>

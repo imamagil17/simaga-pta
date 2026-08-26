@@ -12,7 +12,10 @@ use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
 use App\Http\Controllers\Admin\PenempatanController;
+use App\Http\Controllers\Admin\TugasController as AdminTugasController;
+use App\Http\Controllers\Mahasiswa\TugasController as MahasiswaTugasController;
 use App\Http\Controllers\Mentor\TugasController as MentorTugasController;
+use App\Http\Controllers\Mentor\TugasReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForcePasswordChangeController;
 use App\Http\Controllers\ProfileController;
@@ -251,6 +254,18 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::get('/logbook/{logbook}', [AdminLogbookController::class, 'show'])
             ->name('logbook.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tugas
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/tugas', [AdminTugasController::class, 'index'])
+            ->name('tugas.index');
+
+        Route::get('/tugas/{tugas}', [AdminTugasController::class, 'show'])
+            ->name('tugas.show');
     });
 
 /*
@@ -300,7 +315,7 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
         Route::post('/logbook/{logbook}/revision', [MentorLogbookController::class, 'revision'])
             ->name('logbook.revision');
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Tugas
         |--------------------------------------------------------------------------
@@ -328,6 +343,26 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
 
         Route::post('/tugas/{tugas}/close', [MentorTugasController::class, 'close'])
             ->name('tugas.close');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Tugas Review
+        |--------------------------------------------------------------------------
+        */
+        Route::get(
+            '/tugas/{tugas}/pengumpulan/{pengumpulan}',
+            [TugasReviewController::class, 'show']
+        )->name('tugas.review.show');
+
+        Route::post(
+            '/tugas/{tugas}/pengumpulan/{pengumpulan}/review',
+            [TugasReviewController::class, 'review']
+        )->name('tugas.review');
+
+        Route::post(
+            '/tugas/{tugas}/pengumpulan/{pengumpulan}/revision',
+            [TugasReviewController::class, 'revision']
+        )->name('tugas.revision');
     });
 
 /*
@@ -345,7 +380,7 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
             return view('mahasiswa.dashboard');
         })->name('dashboard');
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Absensi
         |--------------------------------------------------------------------------
@@ -362,7 +397,7 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
         Route::post('/absensi/pulang', [MahasiswaAbsensiController::class, 'storePulang'])
             ->name('absensi.pulang');
 
-    /*
+        /*
         |--------------------------------------------------------------------------
         | Logbook
         |--------------------------------------------------------------------------
@@ -384,6 +419,23 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
 
         Route::post('/logbook/{logbook}/submit', [MahasiswaLogbookController::class, 'submit'])
             ->name('logbook.submit');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Tugas
+        |--------------------------------------------------------------------------     
+        */
+        Route::get('/tugas', [MahasiswaTugasController::class, 'index'])
+            ->name('tugas.index');
+
+        Route::get('/tugas/{tugas}', [MahasiswaTugasController::class, 'show'])
+            ->name('tugas.show');
+
+        Route::post('/tugas/{tugas}', [MahasiswaTugasController::class, 'store'])
+            ->name('tugas.store');
+
+        Route::post('/tugas/{tugas}/submit', [MahasiswaTugasController::class, 'submit'])
+            ->name('tugas.submit');
     });
 
 /*
