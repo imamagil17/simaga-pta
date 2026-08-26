@@ -60,4 +60,9 @@ class Mentor extends Model
     {
         return $this->hasMany(Penempatan::class);
     }
+
+    public function penilaian(): HasMany
+    {
+        return $this->hasMany(Penilaian::class);
+    }
 }

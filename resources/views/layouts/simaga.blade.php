@@ -251,18 +251,14 @@
                 </div>
 
                 {{-- Penilaian --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('admin.penilaian.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.penilaian.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('admin.penilaian.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Penilaian
-                    </span>
+                    Penilaian
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
-
-                </div>
+                </a>
 
                 {{-- Dokumen --}}
                 <a
@@ -529,18 +525,15 @@
                 </a>
 
                 {{-- Penilaian --}}
-                <div class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-emerald-300/60 bg-emerald-900/20 cursor-not-allowed select-none">
+                <a
+                    href="{{ route('mentor.penilaian.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mentor.penilaian.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
 
-                    <span class="flex items-center gap-3">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-                        Penilaian
-                    </span>
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mentor.penilaian.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-400 font-medium">
-                        Segera
-                    </span>
+                    Penilaian
 
-                </div>
+                </a>
 
                 <!-- =========================================================
                      MAHASISWA
@@ -608,6 +601,16 @@
 
                 </a>
 
+                {{-- Penilaian --}}
+                <a
+                    href="{{ route('mahasiswa.penilaian.index') }}"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('mahasiswa.penilaian.*') ? 'bg-amber-500 text-emerald-950 font-semibold shadow-sm' : 'text-emerald-100 hover:bg-emerald-800/60' }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.penilaian.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
+
+                    Penilaian
+
+                </a>
+
                 {{-- Dokumen --}}
                 <a
                     href="{{ route('mahasiswa.dokumen.index') }}"
@@ -615,6 +618,7 @@
                     <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('mahasiswa.dokumen.*') ? 'bg-emerald-950' : 'bg-amber-400' }}"></span>
 
                     Dokumen
+
                 </a>
 
                 {{-- Progress --}}

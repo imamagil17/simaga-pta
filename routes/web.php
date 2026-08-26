@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\MentorController;
 use App\Http\Controllers\Admin\MentorPeriodeController;
 use App\Http\Controllers\Admin\PeriodeMagangController;
 use App\Http\Controllers\Admin\PenempatanController;
+use App\Http\Controllers\Admin\PenilaianController as AdminPenilaianController;
+use App\Http\Controllers\Mentor\PenilaianController as MentorPenilaianController;
+use App\Http\Controllers\Mahasiswa\PenilaianController as MahasiswaPenilaianController;
 use App\Http\Controllers\Admin\TugasController as AdminTugasController;
 use App\Http\Controllers\Mahasiswa\TugasController as MahasiswaTugasController;
 use App\Http\Controllers\Mentor\TugasController as MentorTugasController;
@@ -287,6 +290,18 @@ Route::middleware(['auth', 'role:administrator', 'force.password'])
 
         Route::get('/dokumen/{dokumen}/download', [AdminDokumenController::class, 'download'])
             ->name('dokumen.download');
+
+    /*
+        |--------------------------------------------------------------------------
+        | Penilaian
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/penilaian', [AdminPenilaianController::class, 'index'])
+            ->name('penilaian.index');
+
+        Route::get('/penilaian/{penilaian}', [AdminPenilaianController::class, 'show'])
+            ->name('penilaian.show');
     });
 
 /*
@@ -407,6 +422,21 @@ Route::middleware(['auth', 'role:mentor', 'force.password'])
 
         Route::post('/dokumen/{dokumen}/revision', [MentorDokumenController::class, 'revision'])
             ->name('dokumen.revision');
+
+        Route::get('/penilaian', [MentorPenilaianController::class, 'index'])
+            ->name('penilaian.index');
+
+        Route::get('/penilaian/{mahasiswa}/create', [MentorPenilaianController::class, 'create'])
+            ->name('penilaian.create');
+
+        Route::post('/penilaian/{mahasiswa}', [MentorPenilaianController::class, 'store'])
+            ->name('penilaian.store');
+
+        Route::get('/penilaian/{mahasiswa}', [MentorPenilaianController::class, 'show'])
+            ->name('penilaian.show');
+
+        Route::post('/penilaian/{mahasiswa}/finalize', [MentorPenilaianController::class, 'finalize'])
+            ->name('penilaian.finalize');
         
     });
 
@@ -505,6 +535,13 @@ Route::middleware(['auth', 'role:mahasiswa', 'force.password'])
 
         Route::delete('/dokumen/{dokumen}', [MahasiswaDokumenController::class, 'destroy'])
             ->name('dokumen.destroy');
+
+        
+        Route::get('/penilaian', [MahasiswaPenilaianController::class, 'index'])
+            ->name('penilaian.index');
+
+        Route::get('/penilaian/detail', [MahasiswaPenilaianController::class, 'show'])
+            ->name('penilaian.show');
     });
 
 /*

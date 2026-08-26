@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'mahasiswa_id',
@@ -101,5 +102,10 @@ class Penempatan extends Model
     public function dokumen(): HasMany
     {
         return $this->hasMany(Dokumen::class);
+    }
+
+    public function penilaian(): HasOne
+    {
+        return $this->hasOne(Penilaian::class);
     }
 }

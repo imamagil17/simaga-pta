@@ -63,4 +63,9 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(Dokumen::class);
     }
+
+    public function penilaian(): HasMany
+    {
+        return $this->hasMany(Penilaian::class);
+    }
 }
